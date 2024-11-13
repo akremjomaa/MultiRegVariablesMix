@@ -1,11 +1,10 @@
 Package: MultiRegVariablesMix
 Type: Package
-Title: What the Package Does (Title Case)
+Title: Multinomial Logistic Regression with Mixed Variables
 Version: 0.1.0
-Author: Who wrote it
+Author: Akrem Jomaa, Edina Adjaro Patoussi, Joel Sollari.
 Maintainer: The package maintainer <yourself@somewhere.net>
-Description: More about what it does (maybe more than one line)
-    Use four spaces when indenting paragraphs within the Description.
-License: What license is it under?
+Description: MultiRegMix is an R package designed to perform multinomial logistic regression with mixed-type variables, capable of handling a wide range of dataset structures.Whether you are working with datasets featuring many variables and few observations, few variables and many observations, or large datasets with both, MultiRegMix can effectively manage the complexities involved.
+License:MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
