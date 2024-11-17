@@ -24,6 +24,9 @@ Preprocessor <- R6Class("Preprocessor",
 
                           # Fonction d'exploration de l'AFDM
                           explore_famd = function(X) {
+                            self$identify_columns(X)
+                            X_quantitative <- X[self$quantitative_columns]
+                            X[self$quantitative_columns] <- scale(X_quantitative)
                             famd_result <- FactoMineR::FAMD(X, graph = FALSE)
                             eig.val <- famd_result$eig
 
@@ -47,6 +50,10 @@ Preprocessor <- R6Class("Preprocessor",
                           # Prétraitement en fonction de l'encodage et n_famd_dim
                           fit_transform = function(X) {
                             self$identify_columns(X)
+                            # Standardiser les variables quantitatives avant le FAMD
+                            X_quantitative <- X[self$quantitative_columns]
+                            X[self$quantitative_columns] <- scale(X_quantitative)
+
                             if (self$encoding == "afdm") {
                               if (is.null(self$n_famd_dim)) {
                                 self$set_famd_components(X)  # Définir automatiquement si non défini
@@ -71,6 +78,7 @@ Preprocessor <- R6Class("Preprocessor",
                           # Encodage One-Hot pour les variables catégorielles
                           apply_onehot = function(X) {
                             X_quantitative <- X[self$quantitative_columns]
+                            #X_quantitative <- scale(X_quantitative)
                             X_categorical <- X[self$categorical_columns]
                             if (length(self$categorical_columns) > 0) {
                               dummy <- caret::dummyVars(~ ., data = X_categorical)
@@ -88,6 +96,7 @@ Preprocessor <- R6Class("Preprocessor",
                           # Encodage Label pour les variables catégorielles
                           apply_label_encoding = function(X) {
                             X_encoded <- X
+                            #X[self$quantitative_columns] <- scale(X[self$quantitative_columns])
                             for (col in self$categorical_columns) {
                               X_encoded[[col]] <- as.numeric(factor(X[[col]])) - 1
                             }
@@ -104,112 +113,239 @@ Preprocessor <- R6Class("Preprocessor",
                         )
 )
 
-
-
-
-# Classe de régression logistique multinomiale
 LogisticRegression <- R6Class("LogisticRegression",
-                              public = list(
-                                coefficients = NULL,
-                                max_iter = 100,
-                                learning_rate = 0.01,
-                                preprocessor = NULL,
-                                n_features = NULL,
-                                n_classes = NULL,
-                                fitted = FALSE,
-                                alpha = 1,       # Contrôle de la force de la régularisation (L1 + L2)
-                                l1_ratio = 0.5,  # Ratio entre L1 et L2 (0: L2, 1: L1)
+        public = list(
+          coefficients = NULL,
+          max_iter = 100,
+          learning_rate = 0.01,
+          preprocessor = NULL,
+          n_features = NULL,
+          n_classes = NULL,
+          fitted = FALSE,
+          alpha = 1,       # Force de régularisation
+          l1_ratio = 0.5,  # Ratio entre L1 et L2
+          solver = 'lbfgs',# Paramètre pour choisir le solveur
+          tolerance = 1e-4,# Critère d'arrêt (seuil de convergence)
+          batch_size = 100, # Taille des mini-batchs pour les méthodes stochastiques
+          n_famd_dim = NULL,
 
-                                initialize = function(max_iter = 100, learning_rate = 0.01, encoding = "onehot", alpha = 1, l1_ratio = 0.5) {
-                                  self$max_iter <- max_iter
-                                  self$learning_rate <- learning_rate
-                                  self$alpha <- alpha
-                                  self$l1_ratio <- l1_ratio
-                                  self$preprocessor <- Preprocessor$new(encoding)
-                                },
+          initialize = function(max_iter = 100, learning_rate = 0.01, encoding = "onehot", alpha = 1, l1_ratio = 0.5 ,preprocessor = NULL, n_famd_dim = NULL, solver = 'lbfgs') {
+            self$max_iter <- max_iter
+            self$learning_rate <- learning_rate
+            self$alpha <- alpha
+            self$l1_ratio <- l1_ratio
+            self$solver <- solver
+            self$preprocessor <- preprocessor
 
-                                softmax = function(z) {
-                                  exp_z <- exp(z - apply(z, 1, max))
-                                  return(exp_z / rowSums(exp_z))
-                                },
+            # Vérification de la validité des combinaisons solver et régularisation
+            self$validate_parameters()
+          },
 
-                                # Fonction de coût modifiée pour inclure ElasticNet
-                                cost_function = function(X, y) {
-                                  m <- nrow(X)
-                                  y_one_hot <- matrix(0, m, self$n_classes)
-                                  y_one_hot[cbind(1:m, y + 1)] <- 1
-                                  linear_model <- X %*% self$coefficients
-                                  probabilities <- self$softmax(linear_model)
+          # Fonction de validation des paramètres
+          # Fonction de validation des paramètres
+          validate_parameters = function() {
+            # Si l1_ratio > 0 (L1 ou ElasticNet), seul 'saga' est permis pour L1 pur
+            if (self$l1_ratio > 0 && self$l1_ratio < 1 && self$solver != 'saga') {
+              stop("Erreur : ElasticNet (L1+L2) ne peut être utilisé qu'avec le solveur 'saga'.")
+            }
 
-                                  # Log loss
-                                  log_loss <- -sum(y_one_hot * log(probabilities + 1e-15)) / m
+            # Si l1_ratio == 1 (L1 pur), seul 'saga' est permis
+            if (self$l1_ratio == 1 && self$solver != 'saga') {
+              stop("Erreur : La régularisation L1 (Lasso) ne peut être utilisée qu'avec le solveur 'saga'.")
+            }
 
-                                  # Termes de régularisation L1 et L2 (ElasticNet)
-                                  l1_term <- self$l1_ratio * sum(abs(self$coefficients))
-                                  l2_term <- (1 - self$l1_ratio) * sum(self$coefficients^2) / 2
+            # Si l1_ratio == 0 (L2 pur), tous les solveurs sont permis
+            if (self$l1_ratio == 0) {
+              if (self$solver == 'saga') {
+                cat("Avertissement : Le solveur 'saga' est optimisé pour L1, mais il est également utilisé pour L2.\n")
+              }
+            }
 
-                                  return(log_loss + self$alpha * (l1_term + l2_term))
-                                },
+            # Cas pour ElasticNet avec l1_ratio entre 0 et 1, mais utilisé avec un mauvais solveur
+            if (self$l1_ratio > 0 && self$l1_ratio < 1 && !self$solver %in% c('saga', 'lbfgs', 'newton-cg')) {
+              stop("Erreur : ElasticNet (L1+L2) peut être utilisé avec les solveurs 'saga', 'lbfgs' ou 'newton-cg'.")
+            }
+          },
 
-                                # Gradient de la fonction de coût avec ElasticNet
-                                compute_gradient = function(X, y) {
-                                  m <- nrow(X)
-                                  y_one_hot <- matrix(0, m, self$n_classes)
-                                  y_one_hot[cbind(1:m, y + 1)] <- 1
-                                  linear_model <- X %*% self$coefficients
-                                  probabilities <- self$softmax(linear_model)
-                                  gradient <- t(X) %*% (probabilities - y_one_hot) / m
 
-                                  # Gradient de la régularisation L1 et L2
-                                  # L1 (lasso) utilise la dérivée de la valeur absolue (sign)
-                                  # L2 (ridge) utilise la dérivée du carré
-                                  l1_grad <- self$l1_ratio * sign(self$coefficients)
-                                  l2_grad <- (1 - self$l1_ratio) * self$coefficients
+          softmax = function(z) {
+            exp_z <- exp(z - apply(z, 1, max))
+            return(exp_z / rowSums(exp_z))
+          },
 
-                                  return(gradient + self$alpha * (l1_grad + l2_grad))
-                                },
+          cost_function = function(X, y) {
+            m <- nrow(X)
+            y_one_hot <- matrix(0, m, self$n_classes)
+            y_one_hot[cbind(1:m, y + 1)] <- 1
+            linear_model <- X %*% self$coefficients
+            probabilities <- self$softmax(linear_model)
 
-                                fit = function(X, y) {
-                                  X_processed <- self$preprocessor$fit_transform(X)
-                                  X_processed <- as.matrix(X_processed)
-                                  self$n_features <- ncol(X_processed)
-                                  self$n_classes <- length(unique(y))
-                                  self$coefficients <- matrix(0, self$n_features, self$n_classes)
+            log_loss <- -sum(y_one_hot * log(probabilities + 1e-15)) / m
 
-                                  for (iter in 1:self$max_iter) {
-                                    # Calcul du gradient
-                                    gradient <- self$compute_gradient(X_processed, y)
-                                    # Mise à jour des coefficients
-                                    self$coefficients <- self$coefficients - self$learning_rate * gradient
-                                  }
-                                  self$fitted <- TRUE
-                                },
+            l1_term <- self$l1_ratio * sum(abs(self$coefficients))
+            l2_term <- (1 - self$l1_ratio) * sum(self$coefficients^2)
 
-                                predict = function(X) {
-                                  if (!self$fitted) stop("Le modèle n'est pas encore entraîné.")
-                                  probabilities <- self$predict_proba(X)
-                                  return(apply(probabilities, 1, which.max) - 1)
-                                },
+            return(log_loss + self$alpha * (l1_term + l2_term))
+          },
 
-                                predict_proba = function(X) {
-                                  if (!self$fitted) stop("Le modèle n'est pas encore entraîné.")
-                                  X_processed <- self$preprocessor$transform(X)
-                                  linear_model <- X_processed %*% self$coefficients
-                                  return(self$softmax(linear_model))
-                                },
+          compute_gradient = function(X, y) {
+            m <- nrow(X)
+            y_one_hot <- matrix(0, m, self$n_classes)
+            y_one_hot[cbind(1:m, y + 1)] <- 1
+            linear_model <- X %*% self$coefficients
+            probabilities <- self$softmax(linear_model)
 
-                                summary = function() {
-                                  if (!self$fitted) {
-                                    cat("Modèle non entraîné\n")
-                                  } else {
-                                    cat("Modèle Régression Logistique Multinomiale avec ElasticNet\n")
-                                    cat("Caractéristiques:", self$n_features, "| Classes:", self$n_classes, "\n")
-                                    cat("Alpha:", self$alpha, "| L1_ratio:", self$l1_ratio, "\n")
-                                    cat("Iterations:", self$max_iter, "\n")
-                                    cat("Coefficients:\n")
-                                    print(self$coefficients)
-                                  }
-                                }
-                              )
+            # Calcul du gradient
+            gradient <- t(X) %*% (probabilities - y_one_hot) / m
+
+            # Terme de régularisation
+            l1_grad <- self$l1_ratio * sign(self$coefficients)
+            l2_grad <- (1 - self$l1_ratio) * self$coefficients
+
+            return(gradient + self$alpha * (l1_grad + l2_grad))
+          },
+
+          lbfgs_optimizer = function(X, y) {
+            for (iter in 1:self$max_iter) {
+              gradient <- self$compute_gradient(X, y)
+              self$coefficients <- self$coefficients - self$learning_rate * gradient
+              cost <- self$cost_function(X, y)
+
+              # Arrêter si la convergence est atteinte
+              if (iter > 1 && abs(prev_cost - cost) < self$tolerance) {
+                cat("Convergence atteinte à l'itération", iter, "\n")
+                break
+              }
+              prev_cost <- cost
+            }
+          },
+          newton_cg_optimizer = function(X, y) {
+            for (iter in 1:self$max_iter) {
+              # Calculer les gradients et la Hessienne
+              gradient <- self$compute_gradient(X, y)
+              linear_model <- X %*% self$coefficients
+              probabilities <- self$softmax(linear_model)
+
+              # Calculer la matrice diagonale des poids pour la Hessienne
+              m <- nrow(X)
+              W <- diag(as.vector(probabilities * (1 - probabilities)), m)
+
+              # Calculer la Hessienne (H = X^T W X)
+              hessian <- t(X) %*% W %*% X
+
+              # Calculer le pas de Newton : H^(-1) * gradient
+              step <- solve(hessian, gradient)
+
+              # Mettre à jour les coefficients
+              self$coefficients <- self$coefficients - step
+
+              # Calculer le coût
+              cost <- self$cost_function(X, y)
+
+              # Arrêter si la convergence est atteinte
+              if (iter > 1 && abs(prev_cost - cost) < self$tolerance) {
+                cat("Convergence atteinte à l'itération", iter, "\n")
+                break
+              }
+
+              prev_cost <- cost
+            }
+          },
+
+          sag_optimizer = function(X, y) {
+            for (iter in 1:self$max_iter) {
+              for (i in seq(1, nrow(X), by = self$batch_size)) {
+                batch_X <- X[i:min(i + self$batch_size - 1, nrow(X)), ]
+                batch_y <- y[i:min(i + self$batch_size - 1, length(y))]
+
+                # Calcul du gradient avec régularisation
+                gradient <- self$compute_gradient(batch_X, batch_y)
+                self$coefficients <- self$coefficients - self$learning_rate * gradient
+              }
+
+              cost <- self$cost_function(X, y)
+
+              # Critère de convergence
+              if (iter > 1 && abs(prev_cost - cost) < self$tolerance) {
+                cat("Convergence atteinte à l'itération", iter, "\n")
+                break
+              }
+              prev_cost <- cost
+            }
+          },
+
+          saga_optimizer = function(X, y) {
+            # Implémentation de SAGA pour la régression logistique
+            for (iter in 1:self$max_iter) {
+              # Utiliser des mini-batchs
+              for (i in seq(1, nrow(X), by = self$batch_size)) {
+                batch_X <- X[i:min(i + self$batch_size - 1, nrow(X)), ]
+                batch_y <- y[i:min(i + self$batch_size - 1, length(y))]
+
+                gradient <- self$compute_gradient(batch_X, batch_y)
+                self$coefficients <- self$coefficients - self$learning_rate * gradient
+              }
+              cost <- self$cost_function(X, y)
+
+              if (iter > 1 && abs(prev_cost - cost) < self$tolerance) {
+                cat("Convergence atteinte à l'itération", iter, "\n")
+                break
+              }
+              prev_cost <- cost
+            }
+          },
+
+          fit = function(X, y) {
+            self$n_famd_dim <- self$preprocessor$n_famd_dim
+            X_processed <- self$preprocessor$fit_transform(X)
+            X_processed <- as.matrix(X_processed)
+            self$n_features <- ncol(X_processed)
+            self$n_classes <- length(unique(y))
+            self$coefficients <- matrix(0, self$n_features, self$n_classes)
+
+            if (self$solver == 'lbfgs') {
+              cat("Utilisation de LBFGS pour l'optimisation...\n")
+              self$lbfgs_optimizer(X_processed, y)
+            } else if (self$solver == 'sag') {
+              cat("Utilisation de SAG pour l'optimisation...\n")
+              self$sag_optimizer(X_processed, y)
+            } else if (self$solver == 'saga') {
+              cat("Utilisation de SAGA pour l'optimisation...\n")
+              self$saga_optimizer(X_processed, y)
+            } else if (self$solver == 'newton-cg') {
+              cat("Utilisation de Newton-CG pour l'optimisation...\n")
+              self$newton_cg_optimizer(X_processed, y)
+            } else {
+              stop("Solveur non reconnu.")
+            }
+            self$fitted <- TRUE
+          },
+
+          predict = function(X) {
+            if (!self$fitted) stop("Le modèle n'est pas encore entraîné.")
+            probabilities <- self$predict_proba(X)
+            return(apply(probabilities, 1, which.max) - 1)
+          },
+
+          predict_proba = function(X) {
+            if (!self$fitted) stop("Le modèle n'est pas encore entraîné.")
+            X_processed <- self$preprocessor$transform(X)
+            linear_model <- X_processed %*% self$coefficients
+            return(self$softmax(linear_model))
+          },
+
+          summary = function() {
+            if (!self$fitted) {
+              cat("Modèle non entraîné\n")
+            } else {
+              cat("Modèle Régression Logistique Multinomiale\n")
+              cat("Caractéristiques:", self$n_features, "| Classes:", self$n_classes, "\n")
+              cat("Alpha:", self$alpha, "| L1_ratio:", self$l1_ratio, "\n")
+              cat("Solver:", self$solver, "\n")
+              cat("Iterations:", self$max_iter, "\n")
+              cat("Coefficients:\n")
+              print(self$coefficients)
+            }
+          }
+        )
 )
-
