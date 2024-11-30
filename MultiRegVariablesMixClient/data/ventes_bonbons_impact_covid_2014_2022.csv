@@ -1,0 +1,14 @@
+id_vente;poids_total;prix_unitaire;chiffre_affaire;nom_bonbon;date_vente;nom_magasin;confinement;impact_covid
+222358;49903;1012;202437;Truffe au chocolat;sept-09;Roubaix_E;Non;Non
+222359;49509;970;202584;Guimauve;oct-09;La_pause_bonbon;Non;Non
+222360;49606;979;202210;Bonbon à la violette;nov-09;Bastille_E;Non;Non
+222361;49691;1057;202362;Bonbon au caramel;dec-09;Royal_bonbon;Non;Non
+222363;49797;938;203271;Carambar;fevr-10;Bonbons_bordeaux;Non;Non
+222367;49670;943;202455;Carambar;juin-10;avignon_s;Non;Non
+222376;50324;952;202484;Bonbon glace à la fraise;mars-11;Roubaix_H;Non;Non
+222377;50287;1035;201489;Bonbon à la violette;avr-11;Roubaix_E;Non;Non
+222378;51000;980;200000;Bonbon spécial COVID;avr-20;Paris_S;Oui;Augmentation due à confinement
+222379;52000;1100;220000;Guimauve tendance COVID;mai-20;Lyon_E;Oui;Ventes doublées pendant confinement
+222380;53000;1200;240000;Carambar COVID;juin-20;Marseille_S;Oui;Taux de vente exceptionnel durant crise
+222381;54000;1300;260000;Bonbon à la violette COVID;janv-21;Paris_E;Oui;Retrait partiel à cause des restrictions
+222382;55000;1400;280000;Truffe au chocolat COVID;juin-21;Roubaix_H;Oui;Réduction des ventes post-confinement
