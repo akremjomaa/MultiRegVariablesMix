@@ -26,6 +26,15 @@ MomentumOptimizer <- R6Class("MomentumOptimizer",
                                #' @param beta1 Numeric. The momentum coefficient (between 0 and 1).
                                #' @param weight_dim Vector. Dimensions of the weight matrix (e.g., `c(rows, cols)`).
                                initialize = function(learning_rate, beta1, weight_dim) {
+                                 if (!is.numeric(learning_rate) || learning_rate <= 0) {
+                                   stop("learning_rate must be a positive number.")
+                                 }
+                                 if (!is.numeric(beta1) || beta1 < 0 || beta1 > 1) {
+                                   stop("beta1 must be in the range [0, 1].")
+                                 }
+                                 if (length(weight_dim) != 2 || any(weight_dim <= 0)) {
+                                   stop("weight_dim must be a vector of two positive integers.")
+                                 }
                                  self$learning_rate <- learning_rate
                                  self$beta1 <- beta1
                                  self$m <- matrix(0, nrow = weight_dim[1], ncol = weight_dim[2])

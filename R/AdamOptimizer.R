@@ -38,6 +38,11 @@ AdamOptimizer <- R6Class("AdamOptimizer",
                            #' @param epsilon A small constant for numerical stability. Default: 1e-8.
                            #' @param weight_dim Dimensions of the weight matrix (e.g., `c(rows, cols)`).
                            initialize = function(learning_rate = 0.001, beta1 = 0.9, beta2 = 0.999, epsilon = 1e-8, weight_dim) {
+                             if (!is.numeric(learning_rate) || learning_rate <= 0) stop("learning_rate must be positive.")
+                             if (!is.numeric(beta1) || beta1 <= 0 || beta1 >= 1) stop("beta1 must be in (0, 1).")
+                             if (!is.numeric(beta2) || beta2 <= 0 || beta2 >= 1) stop("beta2 must be in (0, 1).")
+                             if (!is.numeric(epsilon) || epsilon <= 0) stop("epsilon must be positive.")
+                             if (length(weight_dim) != 2 || any(weight_dim <= 0)) stop("weight_dim must be a vector of two positive integers.")
                              self$learning_rate <- learning_rate
                              self$beta1 <- beta1
                              self$beta2 <- beta2
