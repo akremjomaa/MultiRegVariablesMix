@@ -24,6 +24,7 @@
 #' @import ggplot2
 #' @import stats
 #' @importFrom utils head
+#' @importFrom pROC roc auc
 #' @export
 MultinomialRegression <- R6Class("MultinomialRegression",
                                  public = list(
@@ -195,9 +196,6 @@ MultinomialRegression <- R6Class("MultinomialRegression",
                                          }
                                          cost <- -sum(y_batch * log(probs)) / nrow(X_batch)
                                          self$cost_history <- c(self$cost_history, cost)
-                                         if (epoch %% 100 == 0) {
-                                           cat("Epoch:", epoch, "- Cost:", cost, "\n")
-                                         }
                                        }
                                      }
                                    },
