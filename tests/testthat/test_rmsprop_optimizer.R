@@ -1,6 +1,3 @@
-library(testthat)
-source(here("R", "RMSpropOptimizer.R"))
-
 test_that("RMSpropOptimizer initialization works", {
   optimizer <- RMSpropOptimizer$new(learning_rate = 0.01, beta1 = 0.9, epsilon = 1e-8, weight_dim = c(3, 3))
 

@@ -17,6 +17,9 @@ GradientDescentOptimizer <- R6Class("GradientDescentOptimizer",
                                       #'
                                       #' @param learning_rate Numeric. The learning rate for the optimizer.
                                       initialize = function(learning_rate) {
+                                        if (!is.numeric(learning_rate) || learning_rate <= 0) {
+                                          stop("learning_rate must be a positive number.")
+                                        }
                                         self$learning_rate <- learning_rate
                                       },
 

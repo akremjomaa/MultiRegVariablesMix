@@ -1,6 +1,3 @@
-library(testthat)
-source(here("R", "GradientDescentOptimizer.R"))
-
 test_that("GradientDescentOptimizer initialization works", {
   optimizer <- GradientDescentOptimizer$new(learning_rate = 0.01)
 

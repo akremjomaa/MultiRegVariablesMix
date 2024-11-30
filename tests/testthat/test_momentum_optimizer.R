@@ -1,7 +1,3 @@
-library(testthat)
-source(here("R", "MomentumOptimizer.R"))
-
-
 test_that("MomentumOptimizer initialization works", {
   optimizer <- MomentumOptimizer$new(learning_rate = 0.01, beta1 = 0.9, weight_dim = c(3, 3))
 
@@ -10,15 +6,15 @@ test_that("MomentumOptimizer initialization works", {
   expect_equal(dim(optimizer$m), c(3, 3))
 })
 
-test_that("MomentumOptimizer update works", {
-  optimizer <- MomentumOptimizer$new(learning_rate = 0.01, beta1 = 0.9, weight_dim = c(3, 3))
+test_that("MomentumOptimizer updates weights correctly", {
+  W <- matrix(1, 2, 2)
+  gradient <- matrix(0.1, 2, 2)
+  optimizer <- MomentumOptimizer$new(learning_rate = 0.01, beta1 = 0.9, weight_dim = c(2, 2))
 
-  W <- matrix(0.5, nrow = 3, ncol = 3)
-  gradient <- matrix(0.1, nrow = 3, ncol = 3)
+  W_updated <- optimizer$update(W, gradient)
 
-  updated_W <- optimizer$update(W, gradient)
-
-  expect_false(identical(W, updated_W))
+  expect_true(all(W_updated != W)) # Weights should change
+  expect_true(all(optimizer$m != 0)) # Momentum term updated
 })
 
 test_that("MomentumOptimizer clone works", {
