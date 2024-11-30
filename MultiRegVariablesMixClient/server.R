@@ -18,7 +18,24 @@ server <- function(input, output, session) {
   shared_data <- reactiveVal(NULL)
   model <- reactiveVal(NULL)
   
-  # File Loader Module
+
+  # Initialize a reactive value to store notification IDs
+  notification_ids <- reactiveVal(list())
+
+  # Function to add a notification and store its ID
+  addNotification <- function(message, type) {
+    id <- showNotification(message, type = type, duration = NULL)
+    current_ids <- notification_ids()
+    notification_ids(c(current_ids, id))  # Store the new notification ID
+  }
+
+  # Function to remove all notifications
+  removeAllNotifications <- function() {
+    ids <- notification_ids()
+    lapply(ids, removeNotification)  # Remove each notification by ID
+    notification_ids(list())  # Clear the stored IDs
+  }
+    # File Loader Module
   moduleServer(
     id = "fileLoader",
     module = function(input, output, session) {
@@ -67,6 +84,7 @@ server <- function(input, output, session) {
         req(result())
         model(result())
         showNotification("Modèle entraîné avec succès", type = "message")
+        removeAllNotifications()
       })
     }
   )
@@ -109,9 +127,13 @@ server <- function(input, output, session) {
       )
     } else if (!is.null(model())) {
       removeNotification(id = "model_status")
+      # removeAllNotifications()
+
     }
   })
-  
+
+  # removeNotification()
+
   # Return reactive values for debugging
   list(
     data = shared_data,

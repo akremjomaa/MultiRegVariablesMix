@@ -66,7 +66,6 @@ fitModuleUI <- function(id) {
               ns("encoding"),
               "Encodage (catégorielles)",
               choices = c(
-                "Aucun" = "none",
                 "Label Encoding" = "label",
                 "One-Hot Encoding" = "one-hot",
                 "AFDM" = "afdm"
@@ -75,8 +74,43 @@ fitModuleUI <- function(id) {
           )
         ),
         fluidRow(
+          # Model training options
           box(
-            width = 12,
+            width = 6,
+            title = "Options d'entraînement",
+            selectInput(
+              ns("optimizer_type"),
+              "Type d'optimiseur",
+              choices = c("adam", "momentum", "rmsprop", "sgd"),
+              selected = "adam"
+            ),
+            numericInput(
+              ns("learning_rate"),
+              "Taux d'apprentissage",
+              value = 0.01,
+              min = 0.0001,
+              max = 1,
+              step = 0.0001
+            ),
+            numericInput(
+              ns("epochs"),
+              "Nombre d'époques",
+              value = 100,
+              min = 1,
+              max = 1000,
+              step = 1
+            ),
+            numericInput(
+              ns("batch_size"),
+              "Taille du lot",
+              value = 32,
+              min = 1,
+              max = 512,
+              step = 1
+            )
+          ),
+          box(
+            width = 6,
             title = "Encodage et entraînement",
             actionButton(
               ns("fit_model"), 
@@ -134,8 +168,6 @@ fitModuleUI <- function(id) {
     )
   )
 }
-
-
 
 
 # Server Module
@@ -220,16 +252,15 @@ fitModuleServer <- function(input, output, session, shared_data) {
         
         # Initialize and train the multinomial regression model
         model_instance <- MultinomialRegression$new(
-          X = X_train,
-          y = y_train,
-          optimizer_type = "adam",  # Example optimizer
-          learning_rate = 0.01,
-          epochs = 100,
-          batch_size = 32,
-          preprocessor = preprocessor
+          optimizer_type = input$optimizer_type,
+          learning_rate = input$learning_rate,
+          epochs = input$epochs,
+          batch_size = input$batch_size,
+          encoding_type = 'label'
+          # preprocessor = preprocessor
         )
         
-        model_instance$fit()
+        model_instance$fit(X = X_train, y = y_train)
         
         # Make predictions
         pred_train <- model_instance$predict(X_train)
@@ -276,7 +307,7 @@ fitModuleServer <- function(input, output, session, shared_data) {
   # Model summary output
   output$model_summary <- renderPrint({
     req(model())
-    summary(model()$model_instance)
+    summary(model()$model_instance$summary())
   })
   
   # Coefficient table output
@@ -289,14 +320,14 @@ fitModuleServer <- function(input, output, session, shared_data) {
   # Variable importance plot
   output$var_importance_plot <- renderPlot({
     req(model())
-    var_imp <- model()$model_instance$variable_importance()
+    var_imp <- model()$model_instance$var_importance()
     barplot(var_imp, main = "Importance des variables", col = "blue")
   })
   
   # Variable importance table
   output$var_importance_table <- renderDT({
     req(model())
-    var_imp <- model()$model_instance$variable_importance()
+    var_imp <- model()$model_instance$var_importance()
     var_imp_df <- data.frame(Variable = names(var_imp), Importance = var_imp)
     datatable(var_imp_df)
   })
@@ -321,8 +352,9 @@ fitModuleServer <- function(input, output, session, shared_data) {
   # FAMD variables plot
   output$famd_variables_plot <- renderPlot({
     req(model())
-    famd_result <- FactoMineR::FAMD(model()$X_train)
-    plot(famd_result, choix = "var")
+    model()$model_instance$plot_confusion_matrix()
+    # famd_result <- FactoMineR::FAMD(model()$X_train)
+    # plot(famd_result, choix = "var")
   })
   
   # Model info output
