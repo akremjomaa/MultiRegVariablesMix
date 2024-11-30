@@ -39,7 +39,7 @@ Pour installer la dernière version de **MultiRegVariablesMix** depuis GitHub :
 install.packages("remotes")
 
 # Installez le package depuis GitHub
-remotes::install_github("akremjomaa/MultiRegVariablesMix")
+remotes::install_github("https://github.com/akremjomaa/MultiRegVariablesMix.git")
 ```
 
 ---
@@ -222,7 +222,7 @@ Pour signaler un problème ou proposer une amélioration, rendez-vous sur :
 
 ## 📄 Licence
 
-Ce package est distribué sous la licence MIT. Consultez le fichier [LICENSE](https://github.com/akremjomaa/MultiRegVariablesMix/blob/master/LICENSE) pour plus d'informations.
+Ce package est distribué sous la licence MIT. Consultez le fichier [LICENSE](https://github.com/akremjomaa/MultiRegVariablesMix/blob/master/LICENSE.md) pour plus d'informations.
 
 ---
 
