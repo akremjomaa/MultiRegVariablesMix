@@ -63,52 +63,18 @@ Preprocessor <- R6Class("Preprocessor",
                           #' @param data A data frame.
                           #' @param is_training A boolean indicating if this is the training dataset.
                           #' @return The label-encoded dataset.
-                          encode_one_hot = function(data, is_training = TRUE) {
+                          encode_label = function(data, is_training = TRUE) {
                             if (is_training) {
-                              # Entraînement : Générer et sauvegarder les colonnes one-hot
-                              self$one_hot_columns <- list()
+                              self$label_mappings <- list()
                               for (col in self$categorical_cols) {
-                                # Générer les colonnes one-hot pour la colonne actuelle
-                                one_hot <- model.matrix(~ . - 1, data = data[, col, drop = FALSE])
-                                # Sauvegarder les noms des colonnes générées
-                                self$one_hot_columns[[col]] <- colnames(one_hot)
-                                # Ajouter les colonnes one-hot au dataset et supprimer la colonne d'origine
-                                data <- cbind(data, one_hot)
-                                data[[col]] <- NULL
+                                levels <- unique(data[[col]])
+                                self$label_mappings[[col]] <- setNames(seq_along(levels), levels)
+                                data[[col]] <- self$label_mappings[[col]][data[[col]]]
                               }
-                              # Convertir en matrice
-                              data <- as.matrix(data)
                             } else {
-                              # Test : Synchroniser avec les colonnes sauvegardées
                               for (col in self$categorical_cols) {
-                                # Générer les colonnes one-hot pour la colonne actuelle
-                                one_hot <- model.matrix(~ . - 1, data = data[, col, drop = FALSE])
-
-                                # Identifier les colonnes manquantes
-                                columns_to_add <- setdiff(self$one_hot_columns[[col]], colnames(one_hot))
-                                # Ajouter les colonnes manquantes avec des valeurs de 0
-                                if (length(columns_to_add) > 0) {
-                                  for (missing_col in columns_to_add) {
-                                    zero_column <- matrix(0, nrow = nrow(one_hot), ncol = 1)
-                                    colnames(zero_column) <- missing_col
-                                    one_hot <- cbind(one_hot, zero_column)
-                                  }
-                                }
-
-                                # Réordonner les colonnes pour correspondre à l'ordre attendu
-                                all_columns <- self$one_hot_columns[[col]]
-                                if (!all(all_columns %in% colnames(one_hot))) {
-                                  stop(sprintf("Les colonnes suivantes manquent pour la colonne %s : %s",
-                                               col, paste(setdiff(all_columns, colnames(one_hot)), collapse = ", ")))
-                                }
-                                one_hot <- one_hot[, all_columns, drop = FALSE]
-
-                                # Ajouter les colonnes réordonnées au dataset et supprimer la colonne d'origine
-                                data <- cbind(data, one_hot)
-                                data[[col]] <- NULL
+                                data[[col]] <- self$label_mappings[[col]][data[[col]]]
                               }
-                              # Convertir en matrice
-                              data <- as.matrix(data)
                             }
                             return(data)
                           },
