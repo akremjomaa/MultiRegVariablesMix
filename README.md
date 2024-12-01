@@ -58,19 +58,21 @@ library(MultiRegVariablesMix)
 
 ### 2. Prepare your data
 
-Create a training and testing dataset:
+In this tutorial we will use abalone dataframe
 
 ```
-set.seed(42)
+url <- "https://archive.ics.uci.edu/ml/machine-learning-databases/abalone/abalone.data"
+col_names <- c("Sex", "Length", "Diameter", "Height", 
+               "WholeWeight", "ShuckedWeight", 
+               "VisceraWeight", "ShellWeight", "Rings")
 
-# Synthetic dataset
-X <- data.frame(
-  num1 = rnorm(100),  # Numerical variable
-  num2 = runif(100, 1, 10),  # Numerical variable
-  cat1 = sample(c("A", "B", "C"), 100, replace = TRUE),  # Categorical variable
-  cat2 = sample(c("X", "Y"), 100, replace = TRUE)  # Categorical variable
-)
-y <- sample(1:3, 100, replace = TRUE)  # Target variable (classes)
+# Load data
+df <- read.csv(url, header = FALSE, col.names = col_names)
+df$AgeCategory <- cut(df$Rings + 1.5,
+                           breaks = c(-Inf, 10, 20, Inf),
+                           labels = c(1, 2, 3))
+X <- df[,c(-9,-10)]
+y <- df$AgeCategory
 
 # Split into training and testing sets
 train_idx <- sample(seq_len(nrow(X)), size = 70)
@@ -117,7 +119,7 @@ Preprocess the data with the model:
 
 ```
 X_train_processed <- model$preprocess(X_train, y_train, is_training = TRUE, ncp = ncp)
-# If ncp is omitted, the package defaults to retaining components explaining 80% variance.
+# If ncp is omitted, the package defaults to retaining components explaining 80% variance ( 2 components in this example).
 ```
 
 ---
