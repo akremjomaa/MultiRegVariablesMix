@@ -323,15 +323,15 @@ fitModuleServer <- function(input, output, session, shared_data) {
         # Make predictions
         pred_train <- model_instance$predict(X_train)
 
-        if(input$encoding == "onehot"){
-          X_test <- model_instance$preprocess(X_train,y_train ,is_training = FALSE)
-          }
-        if(input$encoding == "label"){
-          X_test <- model_instance$preprocess(X_train, y_train,is_training = FALSE)
-          }
-        if(input$encoding == "afdm"){
-          X_test <- model_instance$preprocess(X_train, y_train,is_training = FALSE, ncp = 5)   
-          }
+        # if(input$encoding == "onehot"){
+        #   X_test <- model_instance$preprocess(X_train,y_train ,is_training = FALSE)
+        #   }
+        # if(input$encoding == "label"){
+        #   X_test <- model_instance$preprocess(X_train, y_train,is_training = FALSE)
+        #   }
+        # if(input$encoding == "afdm"){
+        #   X_test <- model_instance$preprocess(X_train, y_train,is_training = FALSE, ncp = 5)   
+        #   }
 
 
         pred_test <- model_instance$predict(X_test)
