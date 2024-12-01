@@ -36,9 +36,9 @@ fitModuleUI <- function(id) {
               max = 0.9,
               value = 0.7,
               step = 0.1
-            )
-          ),
-          # Preprocessing options
+              )
+            ),
+                      # Preprocessing options
           box(
             width = 6,
             title = "Prétraitement",
@@ -57,28 +57,29 @@ fitModuleUI <- function(id) {
                 "Mode" = "mode"
               )
             ),
-            selectInput(
-              ns("scaling"),
-              "Mise à l'échelle (numériques)",
-              choices = c(
-                "Aucun" = "none",
-                "Standardisation (moyenne=0, écart-type=1)" = "standard",
-                "Normalisation (min=0, max=1)" = "normalize"
-              )
-            ),
+            # selectInput(
+            #   ns("scaling"),
+            #   "Mise à l'échelle (numériques)",
+            #   choices = c(
+            #     "Aucun" = "none",
+            #     "Standardisation (moyenne=0, écart-type=1)" = "standard",
+            #     "Normalisation (min=0, max=1)" = "normalize"
+            #   )
+            # ),
             selectInput(
               ns("encoding"),
               "Encodage (catégorielles)",
               choices = c(
-                "Label Encoding" = "label",
                 "One-Hot Encoding" = "one-hot",
+                "Label Encoding" = "label",
                 "AFDM" = "afdm"
               )
             )
           )
         ),
+
         fluidRow(
-          # Model training options
+         
           box(
             width = 6,
             title = "Options d'entraînement",
@@ -99,15 +100,15 @@ fitModuleUI <- function(id) {
             numericInput(
               ns("epochs"),
               "Nombre d'époques",
-              value = 100,
+              value = 1000,
               min = 1,
-              max = 1000,
+              max = 100000,
               step = 1
             ),
             numericInput(
               ns("batch_size"),
               "Taille du lot",
-              value = 32,
+              value = 10,
               min = 1,
               max = 512,
               step = 1
@@ -120,17 +121,26 @@ fitModuleUI <- function(id) {
               ns("fit_model"), 
               "Entraîner le modèle",
               class = "btn-primary"
-            )
+            ),
+            plotOutput(ns("cost_evolution_plot"))
           )
-        )
-      ),
-      
+      )
+      # fluidRow(
+      #   box(
+      #       width = 6,
+      #       plotOutput(ns("cost_evolution_plot"))
+      #   )
+      # ),
+        ),
+
       # Tab 2: Results
       tabPanel(
         "Résumé du modèle",
         box(
           width = 12,
           title = "Coefficients et statistiques",
+          plotOutput(ns("plot_roc")),
+          plotOutput(ns("plot_confusion_matrix")),
           verbatimTextOutput(ns("model_summary")),
           DTOutput(ns("coef_table"))
         )
@@ -142,6 +152,7 @@ fitModuleUI <- function(id) {
         fluidRow(
           box(
             width = 12,
+            
             plotOutput(ns("var_importance_plot")),
             DTOutput(ns("var_importance_table")),
             plotOutput(ns("famd_scree_plot")),
@@ -218,98 +229,54 @@ fitModuleServer <- function(input, output, session, shared_data) {
   })
   
 
-        # Enhanced preprocessing function
-  preprocess_data <- function(df, input) {
-          # Missing value handling
-          numeric_vars <- names(df)[sapply(df, is.numeric)]
-          categorical_vars <- names(df)[sapply(df, function(x) is.factor(x) || is.character(x))]
-          
-          # Numeric missing value imputation
-          df[numeric_vars] <- lapply(df[numeric_vars], function(x) {
-            switch(input$na_numeric,
-                  "mean" = {
-                    x[is.na(x)] <- mean(x, na.rm = TRUE)
-                    x
-                  },
-                  "median" = {
-                    x[is.na(x)] <- median(x, na.rm = TRUE)
-                    x
-                  },
-                  "knn" = {
-                    # Requires imputation package
-                    # x <- impute(x, method = "knn")
-                    x
-                  })
-          })
-          
-          # Categorical missing value handling
-          df[categorical_vars] <- lapply(df[categorical_vars], function(x) {
-            switch(input$na_categorical,
-                  "mode" = {
-                    mode_val <- names(sort(table(x), decreasing = TRUE))[1]
-                    x[is.na(x)] <- mode_val
-                    x
-                  },
-                  "new_category" = {
-                    x[is.na(x)] <- "Unknown"
-                    x
-                  })
-          })
-          
-          # Scaling
-          df[numeric_vars] <- switch(input$scaling,
-            "standard" = scale(df[numeric_vars]),
-            "normalize" = apply(df[numeric_vars], 2, function(x) (x - min(x)) / (max(x) - min(x))),
-            "robust" = {
-              # Robust scaling using median and IQR
-              apply(df[numeric_vars], 2, function(x) {
-                (x - median(x, na.rm = TRUE)) / IQR(x, na.rm = TRUE)
-              })
-            },
-            df[numeric_vars]
-          )
-          
-          return(df)
-    }
+      # Enhanced preprocessing function
+      preprocess_data <- function(df, input) {
+        # Missing value handling
+        numeric_vars <- names(df)[sapply(df, is.numeric)]
+        categorical_vars <- names(df)[sapply(df, function(x) is.factor(x) || is.character(x))]
+        
+        # Numeric missing value imputation
+        df[numeric_vars] <- lapply(df[numeric_vars], function(x) {
+          switch(input$na_numeric,
+                "mean" = {
+                  x[is.na(x)] <- mean(x, na.rm = TRUE)
+                  x
+                },
+                "median" = {
+                  x[is.na(x)] <- median(x, na.rm = TRUE)
+                  x
+                })
+        })
+        
+        # Categorical missing value handling
+        df[categorical_vars] <- lapply(df[categorical_vars], function(x) {
+          switch(input$na_categorical,
+                "mode" = {
+                  mode_val <- names(sort(table(x), decreasing = TRUE))[1]
+                  x[is.na(x)] <- mode_val
+                  x
+                })
+        })
+        
+        # # Scaling
+        # df[numeric_vars] <- switch(input$scaling,
+        #   "standard" = scale(df[numeric_vars]),
+        #   "normalize" = apply(df[numeric_vars], 2, function(x) (x - min(x)) / (max(x) - min(x))),
+        #   df[numeric_vars]
+        # )
+        return(df)
+      }
 
   # Model fitting handler
   observeEvent(input$fit_model, {
     req(data(), input$target_var)
- 
     
     withProgress(message = 'Entraînement du modèle...', {
       
       tryCatch({
         # Preprocess data
-        # df <- data()
-        df <- preprocess_data(data(), input)
-        
-
-    # # Traitement des valeurs manquantes
-    # numeric_vars <- names(df)[sapply(df, is.numeric)]
-    # df[numeric_vars] <- lapply(df[numeric_vars], function(x) {
-    #   x[is.na(x)] <- ifelse(input$na_numeric == "mean", mean(x, na.rm = TRUE), median(x, na.rm = TRUE))
-    #   x
-    # })
-
-    # # Traitement des variables catégorielles manquantes
-    # if (input$na_categorical == "mode") {
-    #   cat_vars <- names(df)[sapply(df, function(x) is.factor(x) || is.character(x))]
-    #   df[cat_vars] <- lapply(df[cat_vars], function(x) {
-    #     mode_value <- as.character(stats::Mode(x[!is.na(x)]))
-    #     x[is.na(x)] <- mode_value
-    #     x
-    #   })
-    # }
-
-    # # Scaling
-    # if (input$scaling == "standardization") {
-    #   df[numeric_vars] <- lapply(df[numeric_vars], function(x) (x - mean(x, na.rm = TRUE)) / sd(x, na.rm = TRUE))
-    # } else if (input$scaling == "normalization") {
-    #   df[numeric_vars] <- lapply(df[numeric_vars], function(x) (x - min(x, na.rm = TRUE)) / (max(x, na.rm = TRUE) - min(x, na.rm = TRUE)))
-    # }
-
-
+        df <- data()
+        df <- preprocess_data(df, input)
 
 
         # Initialize preprocessor
@@ -350,32 +317,21 @@ fitModuleServer <- function(input, output, session, shared_data) {
           batch_size = input$batch_size
           # preprocessor = preprocessor
         )
-        
-        # if(input$encoding == "onehot"){
-        #   X_train <- model_instance$preprocess(X_train,y_train ,is_training = TRUE)
-        #   }
-        # if(input$encoding == "label"){
-        #   X_train <- model_instance$preprocess(X_train, y_train,is_training = TRUE)
-        #   }
-        # if(input$encoding == "afdm"){
-        #   X_train <- model_instance$preprocess(X_train, y_train,is_training = TRUE, ncp = 5)
-           
-        #   }
 
-        model_instance$fit(X_train, y_train, preprocess = TRUE, ncp = 1)
+        model_instance$fit(X_train, y_train, preprocess = TRUE)
         
         # Make predictions
         pred_train <- model_instance$predict(X_train)
 
-        # if(input$encoding == "onehot"){
-        #   X_test <- model_instance$preprocess(X_train,y_train ,is_training = FALSE)
-        #   }
-        # if(input$encoding == "label"){
-        #   X_test <- model_instance$preprocess(X_train, y_train,is_training = FALSE)
-        #   }
-        # if(input$encoding == "afdm"){
-        #   X_test <- model_instance$preprocess(X_train, y_train,is_training = FALSE, ncp = 5)   
-        #   }
+        if(input$encoding == "onehot"){
+          X_test <- model_instance$preprocess(X_train,y_train ,is_training = FALSE)
+          }
+        if(input$encoding == "label"){
+          X_test <- model_instance$preprocess(X_train, y_train,is_training = FALSE)
+          }
+        if(input$encoding == "afdm"){
+          X_test <- model_instance$preprocess(X_train, y_train,is_training = FALSE, ncp = 5)   
+          }
 
 
         pred_test <- model_instance$predict(X_test)
@@ -388,14 +344,15 @@ fitModuleServer <- function(input, output, session, shared_data) {
         model_data <- list(
           model_instance = model_instance,
           target_var = input$target_var,
-          # train_idx = train_idx,
-          # X_train = X_train,
-          # y_train = y_train,
-          # X_test = X_test,
-          # y_test = y_test,
-          # pred_train = pred_train,
-          # pred_test = pred_test,
           conf_mat = conf_mat,
+          X_train = X_train,
+          y_train = y_train,
+          X_test = X_test,
+          y_test = y_test,
+          pred_train = pred_train,
+          pred_test = pred_test,
+          
+
           accuracy = accuracy
         )
         
@@ -403,8 +360,7 @@ fitModuleServer <- function(input, output, session, shared_data) {
         model(model_data)
         
         showNotification(
-          sprintf("Modèle entraîné avec succès (%.1f%% accuracy)", 
-                  accuracy * 100),
+          sprintf("Modèle entraîné avec succès"),
           type = "message",
           duration = 2
         )
@@ -425,13 +381,32 @@ fitModuleServer <- function(input, output, session, shared_data) {
     req(model())
     summary(model()$model_instance$summary())
   })
-  
-  # Coefficient table output
-  output$coef_table <- renderDT({
+
+  output$var_select <- renderUI({
     req(model())
-    coef_df <- as.data.frame(model()$model_instance$coef())
-    datatable(coef_df)
+    selectInput(
+      "var_select",
+      "Variable",
+      choices = names(model()$model_instance$var_select())
+    )
   })
+
+  output$plot_roc <- renderPlot({
+    req(model())
+    model()$model_instance$plot_roc(model()$X_test ,model()$y_test)
+  })
+  
+  output$plot_confusion_matrix <- renderPlot({
+    req(model())
+    
+    model()$model_instance$plot_confusion_matrix(model()$y_test, model()$pred_test)
+  })
+  # # Coefficient table output
+  # output$coef_table <- renderDT({
+  #   req(model())
+  #   coef_df <- as.data.frame(model()$model_instance$coef())
+  #   datatable(coef_df)
+  # })
   
   # Variable importance plot
   output$var_importance_plot <- renderPlot({
@@ -448,30 +423,30 @@ fitModuleServer <- function(input, output, session, shared_data) {
     datatable(var_imp_df)
   })
   
-  # FAMD scree plot
-  output$famd_scree_plot <- renderPlot({
-    req(model())
-    eig_val <- model()$model_instance$preprocessor$explore_famd(model()$X_train)
-    barplot(eig_val[, 2], names.arg = 1:nrow(eig_val),
-            main = "Variances Explained by Dimensions (%)",
-            xlab = "Principal Dimensions", ylab = "Percentage of variances", col = "steelblue")
-    lines(x = 1:nrow(eig_val), eig_val[, 2], type = "b", pch = 19, col = "red")
-  })
+  # # FAMD scree plot
+  # output$famd_scree_plot <- renderPlot({
+  #   req(model())
+  #   eig_val <- model()$model_instance$preprocessor$explore_famd(model()$X_train)
+  #   barplot(eig_val[, 2], names.arg = 1:nrow(eig_val),
+  #           main = "Variances Explained by Dimensions (%)",
+  #           xlab = "Principal Dimensions", ylab = "Percentage of variances", col = "steelblue")
+  #   lines(x = 1:nrow(eig_val), eig_val[, 2], type = "b", pch = 19, col = "red")
+  # })
   
-  # FAMD contributions table
-  output$famd_contributions <- renderDT({
-    req(model())
-    eig_val <- model()$model_instance$preprocessor$explore_famd(model()$X_train)
-    datatable(eig_val)
-  })
+  # # FAMD contributions table
+  # output$famd_contributions <- renderDT({
+  #   req(model())
+  #   eig_val <- model()$model_instance$preprocessor$explore_famd(model()$X_train)
+  #   datatable(eig_val)
+  # })
   
-  # FAMD variables plot
-  output$famd_variables_plot <- renderPlot({
-    req(model())
-    model()$model_instance$plot_confusion_matrix()
-    # famd_result <- FactoMineR::FAMD(model()$X_train)
-    # plot(famd_result, choix = "var")
-  })
+  # # FAMD variables plot
+  # output$famd_variables_plot <- renderPlot({
+  #   req(model())
+  #   model()$model_instance$plot_confusion_matrix()
+  #   # famd_result <- FactoMineR::FAMD(model()$X_train)
+  #   # plot(famd_result, choix = "var")
+  # })
   
   # Model info output
   output$model_info <- renderPrint({
@@ -488,6 +463,13 @@ fitModuleServer <- function(input, output, session, shared_data) {
       saveRDS(model(), file)
     }
   )
+
+  # Cost evolution plot
+  output$cost_evolution_plot <- renderPlot({
+    req(model())
+    model()$model_instance$plot_cost_evolution()
+  })
+
   
   return(reactive({ model() }))
 }

@@ -28,8 +28,8 @@ fileLoaderModuleUI <- function(id) {
     box(
       title = "Aperçu des fichiers",
       width = 12,
-      DTOutput(ns("preview")),
-      downloadButton(ns("download"), "Télécharger les données")
+      DTOutput(ns("preview"))
+      # downloadButton(ns("download"), "Télécharger les données")
     )
   )
 }
