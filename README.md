@@ -5,50 +5,50 @@
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](https://opensource.org/licenses/MIT)
 [![R](https://img.shields.io/badge/built%20with-R-blue.svg)](https://www.r-project.org/)
 
-**MultiRegVariablesMix** est un package R conçu pour effectuer des régressions logistiques multinomiales avec des variables mixtes. Ce package offre une intégration fluide entre le prétraitement des données, l'entraînement d'un modèle de régression logistique, et des outils d'évaluation visuelle.
+**MultiRegVariablesMix** is an R package designed for performing multinomial logistic regression with mixed variables. It provides a seamless integration of data preprocessing, logistic regression modeling, and visual performance evaluation tools.
 
 ---
 
-## 🚀 Fonctionnalités principales
+## 🚀 Key Features
 
-- **Régression logistique multinomiale** adaptée aux variables numériques et catégoriques.
-- **Prétraitement intégré** :
+- **Multinomial Logistic Regression** for numerical and categorical variables.
+- **Integrated Preprocessing**:
   - Label encoding.
   - One-hot encoding.
-  - Analyse Factorielle des Données Mixtes (AFDM) pour les variables mixtes.
-- **Optimisation** avec prise en charge de :
+  - Factorial Analysis for Mixed Data (FAMD) for mixed variables.
+- **Optimization supporting**:
   - Gradient Descent.
   - Adam.
   - RMSprop.
   - Momentum.
-- **Visualisations** :
-  - Courbes d'évolution du coût.
-  - Matrice de confusion.
-  - Importance des variables.
-  - Courbes ROC multiclasses.
-  - Distribution des prédictions.
+- **Visualizations**:
+  - Cost evolution curves.
+  - Confusion matrices.
+  - Variable importance.
+  - Multi-class ROC curves.
+  - Prediction distributions.
 
 ---
 
 ## 📦 Installation
 
-Pour installer la dernière version de **MultiRegVariablesMix** depuis GitHub :
+To install the latest version of **MultiRegVariablesMix** from GitHub:
 
 ```
-# Installez remotes si nécessaire
+# Install remotes if needed
 install.packages("remotes")
 
-# Installez le package depuis GitHub
+# Install the package from GitHub
 remotes::install_github("https://github.com/akremjomaa/MultiRegVariablesMix.git")
 ```
 
 ---
 
-## 🔧 Guide d'utilisation
+## 🔧 Usage Guide
 
-Voici un guide étape par étape pour utiliser **MultiRegVariablesMix**.
+Here is a step-by-step guide to using **MultiRegVariablesMix**.
 
-### 1. Chargement du package
+### 1. Load the package
 
 ```
 library(MultiRegVariablesMix)
@@ -56,23 +56,23 @@ library(MultiRegVariablesMix)
 
 ---
 
-### 2. Préparation des données
+### 2. Prepare your data
 
-Créez un jeu de données d'entraînement et de test :
+Create a training and testing dataset:
 
 ```
 set.seed(42)
 
-# Jeu de données synthétique
+# Synthetic dataset
 X <- data.frame(
-  num1 = rnorm(100),  # Variable numérique
-  num2 = runif(100, 1, 10),  # Variable numérique
-  cat1 = sample(c("A", "B", "C"), 100, replace = TRUE),  # Variable catégorique
-  cat2 = sample(c("X", "Y"), 100, replace = TRUE)  # Variable catégorique
+  num1 = rnorm(100),  # Numerical variable
+  num2 = runif(100, 1, 10),  # Numerical variable
+  cat1 = sample(c("A", "B", "C"), 100, replace = TRUE),  # Categorical variable
+  cat2 = sample(c("X", "Y"), 100, replace = TRUE)  # Categorical variable
 )
-y <- sample(1:3, 100, replace = TRUE)  # Variable cible (classes)
+y <- sample(1:3, 100, replace = TRUE)  # Target variable (classes)
 
-# Division en jeu d'entraînement et de test
+# Split into training and testing sets
 train_idx <- sample(seq_len(nrow(X)), size = 70)
 X_train <- X[train_idx, ]
 X_test <- X[-train_idx, ]
@@ -82,102 +82,92 @@ y_test <- y[-train_idx]
 
 ---
 
-### 3. Initialisation du modèle
+### 3. Initialize the model
 
-Instanciez la classe principale `MultinomialRegression` avec les hyperparamètres souhaités.
+Instantiate the main `MultinomialRegression` class with the desired hyperparameters:
 
 ```
 model <- MultinomialRegression$new(
-  optimizer_type = "adam",    # Optimiseur
-  encoding_type = "afdm",     # Type de prétraitement
-  learning_rate = 0.001,      # Taux d'apprentissage
-  epochs = 10000,             # Nombre d'époques
-  beta1 = 0.9,                # Paramètre pour Adam
-  epsilon = 1e-4              # Stabilité numérique
+  optimizer_type = "adam",    # Optimizer
+  encoding_type = "afdm",     # Preprocessing method
+  learning_rate = 0.001,      # Learning rate
+  epochs = 10000,             # Number of epochs
+  beta1 = 0.9,                # Parameter for Adam
+  epsilon = 1e-4              # Numerical stability
 )
 ```
 
 ---
 
-### 4. Exploration des données avec AFDM
+### 4. Data exploration with FAMD
 
-Explorez la variance expliquée par les dimensions d'AFDM pour déterminer le nombre de composantes à conserver :
+Explore the variance explained by FAMD dimensions to determine the number of principal components to retain:
 
 ```
 eig_values <- model$explore_famd(X_train)
-ncp <- 3 # Conserver 3 composantes principales
-# Si aucun ncp n'est précisé, le package conserve automatiquement les composantes représentant 80 % de la variance cumulative.
+ncp <- 3 # Retain 3 principal components
+# If ncp is not specified, the package automatically retains components explaining 80% of the cumulative variance.
 ```
 
 ---
 
-### 5. Prétraitement des données
+### 5. Data Preprocessing
 
-Appliquez le prétraitement avec le modèle :
+Preprocess the data with the model:
 
 ```
 X_train_processed <- model$preprocess(X_train, y_train, is_training = TRUE, ncp = ncp)
-# Si le paramètre ncp est omis, le package conservera par défaut les composantes expliquant 80 % de la variance.
+# If ncp is omitted, the package defaults to retaining components explaining 80% variance.
 ```
 
 ---
 
-### 6. Entraînement du modèle
+### 6. Train the model
 
-Entraînez le modèle sur les données prétraitées.
+Train the model on the preprocessed data:
 
 ```
 model$fit()
-# Par défaut, utilise les données prétraitées. Si vous voulez passer vos propres données, spécifiez `X` et `y` en mettant le paramètre 'preprocess' à FALSE.
+# By default, it uses preprocessed data. If you want to use your own data, specify `X` and `y` while setting `preprocess` to FALSE.
 ```
 
 ---
 
-### 7. Évaluation des performances
+### 7. Performance Evaluation
 
-#### a. Courbe d'évolution du coût
+#### a. Cost Evolution Curve
 
 ```
 model$plot_cost_evolution()
 ```
- 
- 
-#### b. Importance des variables
 
+#### b. Variable Importance
 
 ```
 importance <- model$var_importance()
 print(importance)
 ```
 
-
-#### c. Prédictions et probabilités
-
+#### c. Predictions and Probabilities
 
 ```
 predictions <- model$predict(X_test)
 probas <- model$predict_proba(X_test)
 ```
 
-
-#### d. Matrice de confusion
-
+#### d. Confusion Matrix
 
 ```
 model$plot_confusion_matrix(y_test, predictions)
 ```
 
-
-#### e. Courbes ROC multiclasses
-
+#### e. Multi-class ROC Curves
 
 ```
 model$plot_roc(X_test, y_test)
 ```
 
-
-#### f. Distribution des prédictions
-
+#### f. Prediction Distribution
 
 ```
 model$plot_prediction_distribution(X_test, y_true = y_test)
@@ -185,25 +175,25 @@ model$plot_prediction_distribution(X_test, y_true = y_test)
 
 ---
 
-### 8. Résumé du modèle
+### 8. Model Summary
 
-Affichez les informations globales et détaillées sur le modèle.
+Display global and detailed information about the model:
 
 ```
-# Vue d'ensemble
+# Overview
 model$print()
 ```
 
 ```
-# Résumé complet
+# Full summary
 model$summary()
 ```
 
 ---
 
-## 🛠️ Dépendances
+## 🛠️ Dependencies
 
-Ce package dépend des bibliothèques suivantes (installées automatiquement lors de l'installation) :
+This package depends on the following libraries (automatically installed during installation):
 
 - `R6`
 - `ggplot2`
@@ -213,24 +203,23 @@ Ce package dépend des bibliothèques suivantes (installées automatiquement lor
 
 ---
 
-## 🐞 Rapport de bugs
+## 🐞 Bug Reports
 
-Pour signaler un problème ou proposer une amélioration, rendez-vous sur :  
+To report an issue or suggest an improvement, visit:  
 [BugReports](https://github.com/akremjomaa/MultiRegVariablesMix/issues)
 
 ---
 
-## 📄 Licence
+## 📄 License
 
-Ce package est distribué sous la licence MIT. Consultez le fichier [LICENSE](https://github.com/akremjomaa/MultiRegVariablesMix/blob/master/LICENSE.md) pour plus d'informations.
+This package is distributed under the MIT License. See the [LICENSE](https://github.com/akremjomaa/MultiRegVariablesMix/blob/master/LICENSE.md) file for details.
 
 ---
 
-## 👥 Auteurs
+## 👥 Authors
 
 - **Akrem Jomaa** – [akrem.jomaa@univ-lyon2.fr](mailto:akrem.jomaa@univ-lyon2.fr)
 - **Edina Adjaro Patoussi** – [e.adjaro-patoussi@univ-lyon2.fr](mailto:e.adjaro-patoussi@univ-lyon2.fr)
 - **Joel Sollari** – [joel.sollari@univ-lyon2.fr](mailto:joel.sollari@univ-lyon2.fr)
 
 ---
-

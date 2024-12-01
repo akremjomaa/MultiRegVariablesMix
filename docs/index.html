@@ -66,24 +66,24 @@
 <div class="page-header"><h1 id="multiregvariablesmix">MultiRegVariablesMix<a class="anchor" aria-label="anchor" href="#multiregvariablesmix"></a>
 </h1></div>
 <p><a href="https://github.com/akremjomaa/MultiRegVariablesMix" class="external-link"><img src="https://img.shields.io/badge/version-0.1.0-blue.svg" alt="Version"></a> <a href="https://opensource.org/licenses/MIT" class="external-link"><img src="https://img.shields.io/badge/license-MIT-green.svg" alt="License"></a> <a href="https://www.r-project.org/" class="external-link"><img src="https://img.shields.io/badge/built%20with-R-blue.svg" alt="R"></a></p>
-<p><strong>MultiRegVariablesMix</strong> est un package R conçu pour effectuer des régressions logistiques multinomiales avec des variables mixtes. Ce package offre une intégration fluide entre le prétraitement des données, l’entraînement d’un modèle de régression logistique, et des outils d’évaluation visuelle.</p>
+<p><strong>MultiRegVariablesMix</strong> is an R package designed for performing multinomial logistic regression with mixed variables. It provides a seamless integration of data preprocessing, logistic regression modeling, and visual performance evaluation tools.</p>
 <hr>
 <div class="section level2">
-<h2 id="id_-fonctionnalités-principales">🚀 Fonctionnalités principales<a class="anchor" aria-label="anchor" href="#id_-fonctionnalit%C3%A9s-principales"></a>
+<h2 id="id_-key-features">🚀 Key Features<a class="anchor" aria-label="anchor" href="#id_-key-features"></a>
 </h2>
 <ul>
 <li>
-<strong>Régression logistique multinomiale</strong> adaptée aux variables numériques et catégoriques.</li>
+<strong>Multinomial Logistic Regression</strong> for numerical and categorical variables.</li>
 <li>
-<strong>Prétraitement intégré</strong> :
+<strong>Integrated Preprocessing</strong>:
 <ul>
 <li>Label encoding.</li>
 <li>One-hot encoding.</li>
-<li>Analyse Factorielle des Données Mixtes (AFDM) pour les variables mixtes.</li>
+<li>Factorial Analysis for Mixed Data (FAMD) for mixed variables.</li>
 </ul>
 </li>
 <li>
-<strong>Optimisation</strong> avec prise en charge de :
+<strong>Optimization supporting</strong>:
 <ul>
 <li>Gradient Descent.</li>
 <li>Adam.</li>
@@ -92,13 +92,13 @@
 </ul>
 </li>
 <li>
-<strong>Visualisations</strong> :
+<strong>Visualizations</strong>:
 <ul>
-<li>Courbes d’évolution du coût.</li>
-<li>Matrice de confusion.</li>
-<li>Importance des variables.</li>
-<li>Courbes ROC multiclasses.</li>
-<li>Distribution des prédictions.</li>
+<li>Cost evolution curves.</li>
+<li>Confusion matrices.</li>
+<li>Variable importance.</li>
+<li>Multi-class ROC curves.</li>
+<li>Prediction distributions.</li>
 </ul>
 </li>
 </ul>
@@ -107,40 +107,40 @@
 <div class="section level2">
 <h2 id="id_-installation">📦 Installation<a class="anchor" aria-label="anchor" href="#id_-installation"></a>
 </h2>
-<p>Pour installer la dernière version de <strong>MultiRegVariablesMix</strong> depuis GitHub :</p>
-<pre><code><span><span class="co"># Installez remotes si nécessaire</span></span>
+<p>To install the latest version of <strong>MultiRegVariablesMix</strong> from GitHub:</p>
+<pre><code><span><span class="co"># Install remotes if needed</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"remotes"</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># Installez le package depuis GitHub</span></span>
+<span><span class="co"># Install the package from GitHub</span></span>
 <span><span class="fu">remotes</span><span class="fu">::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"https://github.com/akremjomaa/MultiRegVariablesMix.git"</span><span class="op">)</span></span></code></pre>
 <hr>
 </div>
 <div class="section level2">
-<h2 id="id_-guide-dutilisation">🔧 Guide d’utilisation<a class="anchor" aria-label="anchor" href="#id_-guide-dutilisation"></a>
+<h2 id="id_-usage-guide">🔧 Usage Guide<a class="anchor" aria-label="anchor" href="#id_-usage-guide"></a>
 </h2>
-<p>Voici un guide étape par étape pour utiliser <strong>MultiRegVariablesMix</strong>.</p>
+<p>Here is a step-by-step guide to using <strong>MultiRegVariablesMix</strong>.</p>
 <div class="section level3">
-<h3 id="id_1-chargement-du-package">1. Chargement du package<a class="anchor" aria-label="anchor" href="#id_1-chargement-du-package"></a>
+<h3 id="id_1-load-the-package">1. Load the package<a class="anchor" aria-label="anchor" href="#id_1-load-the-package"></a>
 </h3>
 <pre><code><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/akremjomaa/MultiRegVariablesMix" class="external-link">MultiRegVariablesMix</a></span><span class="op">)</span></span></code></pre>
 <hr>
 </div>
 <div class="section level3">
-<h3 id="id_2-préparation-des-données">2. Préparation des données<a class="anchor" aria-label="anchor" href="#id_2-pr%C3%A9paration-des-donn%C3%A9es"></a>
+<h3 id="id_2-prepare-your-data">2. Prepare your data<a class="anchor" aria-label="anchor" href="#id_2-prepare-your-data"></a>
 </h3>
-<p>Créez un jeu de données d’entraînement et de test :</p>
+<p>Create a training and testing dataset:</p>
 <pre><code><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">42</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># Jeu de données synthétique</span></span>
+<span><span class="co"># Synthetic dataset</span></span>
 <span><span class="va">X</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
-<span>  num1 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">100</span><span class="op">)</span>,  <span class="co"># Variable numérique</span></span>
-<span>  num2 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Uniform.html" class="external-link">runif</a></span><span class="op">(</span><span class="fl">100</span>, <span class="fl">1</span>, <span class="fl">10</span><span class="op">)</span>,  <span class="co"># Variable numérique</span></span>
-<span>  cat1 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"A"</span>, <span class="st">"B"</span>, <span class="st">"C"</span><span class="op">)</span>, <span class="fl">100</span>, replace <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,  <span class="co"># Variable catégorique</span></span>
-<span>  cat2 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"X"</span>, <span class="st">"Y"</span><span class="op">)</span>, <span class="fl">100</span>, replace <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>  <span class="co"># Variable catégorique</span></span>
+<span>  num1 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">100</span><span class="op">)</span>,  <span class="co"># Numerical variable</span></span>
+<span>  num2 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Uniform.html" class="external-link">runif</a></span><span class="op">(</span><span class="fl">100</span>, <span class="fl">1</span>, <span class="fl">10</span><span class="op">)</span>,  <span class="co"># Numerical variable</span></span>
+<span>  cat1 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"A"</span>, <span class="st">"B"</span>, <span class="st">"C"</span><span class="op">)</span>, <span class="fl">100</span>, replace <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,  <span class="co"># Categorical variable</span></span>
+<span>  cat2 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"X"</span>, <span class="st">"Y"</span><span class="op">)</span>, <span class="fl">100</span>, replace <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>  <span class="co"># Categorical variable</span></span>
 <span><span class="op">)</span></span>
-<span><span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">3</span>, <span class="fl">100</span>, replace <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>  <span class="co"># Variable cible (classes)</span></span>
+<span><span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">3</span>, <span class="fl">100</span>, replace <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>  <span class="co"># Target variable (classes)</span></span>
 <span></span>
-<span><span class="co"># Division en jeu d'entraînement et de test</span></span>
+<span><span class="co"># Split into training and testing sets</span></span>
 <span><span class="va">train_idx</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_len</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">X</span><span class="op">)</span><span class="op">)</span>, size <span class="op">=</span> <span class="fl">70</span><span class="op">)</span></span>
 <span><span class="va">X_train</span> <span class="op">&lt;-</span> <span class="va">X</span><span class="op">[</span><span class="va">train_idx</span>, <span class="op">]</span></span>
 <span><span class="va">X_test</span> <span class="op">&lt;-</span> <span class="va">X</span><span class="op">[</span><span class="op">-</span><span class="va">train_idx</span>, <span class="op">]</span></span>
@@ -149,96 +149,96 @@
 <hr>
 </div>
 <div class="section level3">
-<h3 id="id_3-initialisation-du-modèle">3. Initialisation du modèle<a class="anchor" aria-label="anchor" href="#id_3-initialisation-du-mod%C3%A8le"></a>
+<h3 id="id_3-initialize-the-model">3. Initialize the model<a class="anchor" aria-label="anchor" href="#id_3-initialize-the-model"></a>
 </h3>
-<p>Instanciez la classe principale <code>MultinomialRegression</code> avec les hyperparamètres souhaités.</p>
+<p>Instantiate the main <code>MultinomialRegression</code> class with the desired hyperparameters:</p>
 <pre><code><span><span class="va">model</span> <span class="op">&lt;-</span> <span class="va"><a href="reference/MultinomialRegression.html">MultinomialRegression</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span>
-<span>  optimizer_type <span class="op">=</span> <span class="st">"adam"</span>,    <span class="co"># Optimiseur</span></span>
-<span>  encoding_type <span class="op">=</span> <span class="st">"afdm"</span>,     <span class="co"># Type de prétraitement</span></span>
-<span>  learning_rate <span class="op">=</span> <span class="fl">0.001</span>,      <span class="co"># Taux d'apprentissage</span></span>
-<span>  epochs <span class="op">=</span> <span class="fl">10000</span>,             <span class="co"># Nombre d'époques</span></span>
-<span>  beta1 <span class="op">=</span> <span class="fl">0.9</span>,                <span class="co"># Paramètre pour Adam</span></span>
-<span>  epsilon <span class="op">=</span> <span class="fl">1e-4</span>              <span class="co"># Stabilité numérique</span></span>
+<span>  optimizer_type <span class="op">=</span> <span class="st">"adam"</span>,    <span class="co"># Optimizer</span></span>
+<span>  encoding_type <span class="op">=</span> <span class="st">"afdm"</span>,     <span class="co"># Preprocessing method</span></span>
+<span>  learning_rate <span class="op">=</span> <span class="fl">0.001</span>,      <span class="co"># Learning rate</span></span>
+<span>  epochs <span class="op">=</span> <span class="fl">10000</span>,             <span class="co"># Number of epochs</span></span>
+<span>  beta1 <span class="op">=</span> <span class="fl">0.9</span>,                <span class="co"># Parameter for Adam</span></span>
+<span>  epsilon <span class="op">=</span> <span class="fl">1e-4</span>              <span class="co"># Numerical stability</span></span>
 <span><span class="op">)</span></span></code></pre>
 <hr>
 </div>
 <div class="section level3">
-<h3 id="id_4-exploration-des-données-avec-afdm">4. Exploration des données avec AFDM<a class="anchor" aria-label="anchor" href="#id_4-exploration-des-donn%C3%A9es-avec-afdm"></a>
+<h3 id="id_4-data-exploration-with-famd">4. Data exploration with FAMD<a class="anchor" aria-label="anchor" href="#id_4-data-exploration-with-famd"></a>
 </h3>
-<p>Explorez la variance expliquée par les dimensions d’AFDM pour déterminer le nombre de composantes à conserver :</p>
+<p>Explore the variance explained by FAMD dimensions to determine the number of principal components to retain:</p>
 <pre><code><span><span class="va">eig_values</span> <span class="op">&lt;-</span> <span class="va">model</span><span class="op">$</span><span class="fu">explore_famd</span><span class="op">(</span><span class="va">X_train</span><span class="op">)</span></span>
-<span><span class="va">ncp</span> <span class="op">&lt;-</span> <span class="fl">3</span> <span class="co"># Conserver 3 composantes principales</span></span>
-<span><span class="co"># Si aucun ncp n'est précisé, le package conserve automatiquement les composantes représentant 80 % de la variance cumulative.</span></span></code></pre>
+<span><span class="va">ncp</span> <span class="op">&lt;-</span> <span class="fl">3</span> <span class="co"># Retain 3 principal components</span></span>
+<span><span class="co"># If ncp is not specified, the package automatically retains components explaining 80% of the cumulative variance.</span></span></code></pre>
 <hr>
 </div>
 <div class="section level3">
-<h3 id="id_5-prétraitement-des-données">5. Prétraitement des données<a class="anchor" aria-label="anchor" href="#id_5-pr%C3%A9traitement-des-donn%C3%A9es"></a>
+<h3 id="id_5-data-preprocessing">5. Data Preprocessing<a class="anchor" aria-label="anchor" href="#id_5-data-preprocessing"></a>
 </h3>
-<p>Appliquez le prétraitement avec le modèle :</p>
+<p>Preprocess the data with the model:</p>
 <pre><code><span><span class="va">X_train_processed</span> <span class="op">&lt;-</span> <span class="va">model</span><span class="op">$</span><span class="fu">preprocess</span><span class="op">(</span><span class="va">X_train</span>, <span class="va">y_train</span>, is_training <span class="op">=</span> <span class="cn">TRUE</span>, ncp <span class="op">=</span> <span class="va">ncp</span><span class="op">)</span></span>
-<span><span class="co"># Si le paramètre ncp est omis, le package conservera par défaut les composantes expliquant 80 % de la variance.</span></span></code></pre>
+<span><span class="co"># If ncp is omitted, the package defaults to retaining components explaining 80% variance.</span></span></code></pre>
 <hr>
 </div>
 <div class="section level3">
-<h3 id="id_6-entraînement-du-modèle">6. Entraînement du modèle<a class="anchor" aria-label="anchor" href="#id_6-entra%C3%AEnement-du-mod%C3%A8le"></a>
+<h3 id="id_6-train-the-model">6. Train the model<a class="anchor" aria-label="anchor" href="#id_6-train-the-model"></a>
 </h3>
-<p>Entraînez le modèle sur les données prétraitées.</p>
+<p>Train the model on the preprocessed data:</p>
 <pre><code><span><span class="va">model</span><span class="op">$</span><span class="fu">fit</span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="co"># Par défaut, utilise les données prétraitées. Si vous voulez passer vos propres données, spécifiez `X` et `y` en mettant le paramètre 'preprocess' à FALSE.</span></span></code></pre>
+<span><span class="co"># By default, it uses preprocessed data. If you want to use your own data, specify `X` and `y` while setting `preprocess` to FALSE.</span></span></code></pre>
 <hr>
 </div>
 <div class="section level3">
-<h3 id="id_7-évaluation-des-performances">7. Évaluation des performances<a class="anchor" aria-label="anchor" href="#id_7-%C3%A9valuation-des-performances"></a>
+<h3 id="id_7-performance-evaluation">7. Performance Evaluation<a class="anchor" aria-label="anchor" href="#id_7-performance-evaluation"></a>
 </h3>
 <div class="section level4">
-<h4 id="a-courbe-dévolution-du-coût">a. Courbe d’évolution du coût<a class="anchor" aria-label="anchor" href="#a-courbe-d%C3%A9volution-du-co%C3%BBt"></a>
+<h4 id="a-cost-evolution-curve">a. Cost Evolution Curve<a class="anchor" aria-label="anchor" href="#a-cost-evolution-curve"></a>
 </h4>
 <pre><code><span><span class="va">model</span><span class="op">$</span><span class="fu">plot_cost_evolution</span><span class="op">(</span><span class="op">)</span></span></code></pre>
 </div>
 <div class="section level4">
-<h4 id="b-importance-des-variables">b. Importance des variables<a class="anchor" aria-label="anchor" href="#b-importance-des-variables"></a>
+<h4 id="b-variable-importance">b. Variable Importance<a class="anchor" aria-label="anchor" href="#b-variable-importance"></a>
 </h4>
 <pre><code><span><span class="va">importance</span> <span class="op">&lt;-</span> <span class="va">model</span><span class="op">$</span><span class="fu">var_importance</span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">importance</span><span class="op">)</span></span></code></pre>
 </div>
 <div class="section level4">
-<h4 id="c-prédictions-et-probabilités">c. Prédictions et probabilités<a class="anchor" aria-label="anchor" href="#c-pr%C3%A9dictions-et-probabilit%C3%A9s"></a>
+<h4 id="c-predictions-and-probabilities">c. Predictions and Probabilities<a class="anchor" aria-label="anchor" href="#c-predictions-and-probabilities"></a>
 </h4>
 <pre><code><span><span class="va">predictions</span> <span class="op">&lt;-</span> <span class="va">model</span><span class="op">$</span><span class="fu">predict</span><span class="op">(</span><span class="va">X_test</span><span class="op">)</span></span>
 <span><span class="va">probas</span> <span class="op">&lt;-</span> <span class="va">model</span><span class="op">$</span><span class="fu">predict_proba</span><span class="op">(</span><span class="va">X_test</span><span class="op">)</span></span></code></pre>
 </div>
 <div class="section level4">
-<h4 id="d-matrice-de-confusion">d. Matrice de confusion<a class="anchor" aria-label="anchor" href="#d-matrice-de-confusion"></a>
+<h4 id="d-confusion-matrix">d. Confusion Matrix<a class="anchor" aria-label="anchor" href="#d-confusion-matrix"></a>
 </h4>
 <pre><code><span><span class="va">model</span><span class="op">$</span><span class="fu">plot_confusion_matrix</span><span class="op">(</span><span class="va">y_test</span>, <span class="va">predictions</span><span class="op">)</span></span></code></pre>
 </div>
 <div class="section level4">
-<h4 id="e-courbes-roc-multiclasses">e. Courbes ROC multiclasses<a class="anchor" aria-label="anchor" href="#e-courbes-roc-multiclasses"></a>
+<h4 id="e-multi-class-roc-curves">e. Multi-class ROC Curves<a class="anchor" aria-label="anchor" href="#e-multi-class-roc-curves"></a>
 </h4>
 <pre><code><span><span class="va">model</span><span class="op">$</span><span class="fu">plot_roc</span><span class="op">(</span><span class="va">X_test</span>, <span class="va">y_test</span><span class="op">)</span></span></code></pre>
 </div>
 <div class="section level4">
-<h4 id="f-distribution-des-prédictions">f. Distribution des prédictions<a class="anchor" aria-label="anchor" href="#f-distribution-des-pr%C3%A9dictions"></a>
+<h4 id="f-prediction-distribution">f. Prediction Distribution<a class="anchor" aria-label="anchor" href="#f-prediction-distribution"></a>
 </h4>
 <pre><code><span><span class="va">model</span><span class="op">$</span><span class="fu">plot_prediction_distribution</span><span class="op">(</span><span class="va">X_test</span>, y_true <span class="op">=</span> <span class="va">y_test</span><span class="op">)</span></span></code></pre>
 <hr>
 </div>
 </div>
 <div class="section level3">
-<h3 id="id_8-résumé-du-modèle">8. Résumé du modèle<a class="anchor" aria-label="anchor" href="#id_8-r%C3%A9sum%C3%A9-du-mod%C3%A8le"></a>
+<h3 id="id_8-model-summary">8. Model Summary<a class="anchor" aria-label="anchor" href="#id_8-model-summary"></a>
 </h3>
-<p>Affichez les informations globales et détaillées sur le modèle.</p>
-<pre><code><span><span class="co"># Vue d'ensemble</span></span>
+<p>Display global and detailed information about the model:</p>
+<pre><code><span><span class="co"># Overview</span></span>
 <span><span class="va">model</span><span class="op">$</span><span class="fu">print</span><span class="op">(</span><span class="op">)</span></span></code></pre>
-<pre><code><span><span class="co"># Résumé complet</span></span>
+<pre><code><span><span class="co"># Full summary</span></span>
 <span><span class="va">model</span><span class="op">$</span><span class="fu">summary</span><span class="op">(</span><span class="op">)</span></span></code></pre>
 <hr>
 </div>
 </div>
 <div class="section level2">
-<h2 id="id_️-dépendances">🛠️ Dépendances<a class="anchor" aria-label="anchor" href="#id_%EF%B8%8F-d%C3%A9pendances"></a>
+<h2 id="id_️-dependencies">🛠️ Dependencies<a class="anchor" aria-label="anchor" href="#id_%EF%B8%8F-dependencies"></a>
 </h2>
-<p>Ce package dépend des bibliothèques suivantes (installées automatiquement lors de l’installation) :</p>
+<p>This package depends on the following libraries (automatically installed during installation):</p>
 <ul>
 <li><code>R6</code></li>
 <li><code>ggplot2</code></li>
@@ -249,19 +249,19 @@
 <hr>
 </div>
 <div class="section level2">
-<h2 id="id_-rapport-de-bugs">🐞 Rapport de bugs<a class="anchor" aria-label="anchor" href="#id_-rapport-de-bugs"></a>
+<h2 id="id_-bug-reports">🐞 Bug Reports<a class="anchor" aria-label="anchor" href="#id_-bug-reports"></a>
 </h2>
-<p>Pour signaler un problème ou proposer une amélioration, rendez-vous sur :<br><a href="https://github.com/akremjomaa/MultiRegVariablesMix/issues" class="external-link">BugReports</a></p>
+<p>To report an issue or suggest an improvement, visit:<br><a href="https://github.com/akremjomaa/MultiRegVariablesMix/issues" class="external-link">BugReports</a></p>
 <hr>
 </div>
 <div class="section level2">
-<h2 id="id_-licence">📄 Licence<a class="anchor" aria-label="anchor" href="#id_-licence"></a>
+<h2 id="id_-license">📄 License<a class="anchor" aria-label="anchor" href="#id_-license"></a>
 </h2>
-<p>Ce package est distribué sous la licence MIT. Consultez le fichier <a href="https://github.com/akremjomaa/MultiRegVariablesMix/blob/master/LICENSE.md" class="external-link">LICENSE</a> pour plus d’informations.</p>
+<p>This package is distributed under the MIT License. See the <a href="https://github.com/akremjomaa/MultiRegVariablesMix/blob/master/LICENSE.md" class="external-link">LICENSE</a> file for details.</p>
 <hr>
 </div>
 <div class="section level2">
-<h2 id="id_-auteurs">👥 Auteurs<a class="anchor" aria-label="anchor" href="#id_-auteurs"></a>
+<h2 id="id_-authors">👥 Authors<a class="anchor" aria-label="anchor" href="#id_-authors"></a>
 </h2>
 <ul>
 <li>
