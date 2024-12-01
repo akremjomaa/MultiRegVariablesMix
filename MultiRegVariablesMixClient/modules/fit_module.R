@@ -2,7 +2,9 @@ library(shiny)
 library(shinydashboard)
 library(DT)
 library(FactoMineR)
-library(MultiRegVariablesMix)
+library(devtools)
+# library(MultiRegVariablesMix)
+load_all("MultiRegVariablesMix")
 
 # UI Module
 fitModuleUI <- function(id) {
@@ -41,7 +43,6 @@ fitModuleUI <- function(id) {
               ns("na_numeric"),
               "Valeurs manquantes (numériques)",
               choices = c(
-                "Aucun traitement" = "none",
                 "Moyenne" = "mean",
                 "Médiane" = "median"
               )
@@ -49,8 +50,7 @@ fitModuleUI <- function(id) {
             selectInput(
               ns("na_categorical"),
               "Valeurs manquantes (catégorielles)",
-              choices = c(
-                "Aucun traitement" = "none",
+              choices = c(    
                 "Mode" = "mode"
               )
             ),
@@ -81,7 +81,7 @@ fitModuleUI <- function(id) {
             selectInput(
               ns("optimizer_type"),
               "Type d'optimiseur",
-              choices = c("adam", "momentum", "rmsprop", "sgd"),
+              choices = c("adam", "momentum", "rmsprop", "gd"),
               selected = "adam"
             ),
             numericInput(
@@ -201,7 +201,7 @@ fitModuleServer <- function(input, output, session, shared_data) {
     cat_vars <- names(df)[sapply(df, function(x) {
       if(is.factor(x) || is.character(x)) {
         n_levels <- length(unique(na.omit(x)))
-        return(n_levels > 2 && n_levels < nrow(df)/2)  # Reasonable number of levels
+        return(n_levels > 2 && n_levels < nrow(df)/2)   
       }
       return(FALSE)
     })]
@@ -224,10 +224,10 @@ fitModuleServer <- function(input, output, session, shared_data) {
         df <- data()
         
         # Initialize preprocessor
-        preprocessor <- Preprocessor$new(encoding_type = input$encoding)
+        # preprocessor <- Preprocessor$new(encoding_type = input$encoding)
         
         # Preprocess the data
-        df <- preprocessor$preprocess(df, is_training = TRUE)
+        # df <- preprocessor$preprocess(df, is_training = TRUE)
         
         # Prepare target variable
         target <- df[[input$target_var]]
@@ -253,10 +253,10 @@ fitModuleServer <- function(input, output, session, shared_data) {
         # Initialize and train the multinomial regression model
         model_instance <- MultinomialRegression$new(
           optimizer_type = input$optimizer_type,
+          encoding_type = input$encoding,
           learning_rate = input$learning_rate,
           epochs = input$epochs,
-          batch_size = input$batch_size,
-          encoding_type = 'label'
+          batch_size = input$batch_size
           # preprocessor = preprocessor
         )
         
@@ -274,13 +274,13 @@ fitModuleServer <- function(input, output, session, shared_data) {
         model_data <- list(
           model_instance = model_instance,
           target_var = input$target_var,
-          train_idx = train_idx,
-          X_train = X_train,
-          y_train = y_train,
-          X_test = X_test,
-          y_test = y_test,
-          pred_train = pred_train,
-          pred_test = pred_test,
+          # train_idx = train_idx,
+          # X_train = X_train,
+          # y_train = y_train,
+          # X_test = X_test,
+          # y_test = y_test,
+          # pred_train = pred_train,
+          # pred_test = pred_test,
           conf_mat = conf_mat,
           accuracy = accuracy
         )
@@ -304,6 +304,7 @@ fitModuleServer <- function(input, output, session, shared_data) {
     })
   })
   
+
   # Model summary output
   output$model_summary <- renderPrint({
     req(model())

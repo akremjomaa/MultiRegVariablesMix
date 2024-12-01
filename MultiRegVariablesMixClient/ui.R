@@ -61,12 +61,12 @@ ui <- dashboardPage(
     ),
 
   # Barre latérale avec menu de navigation
-  
+
   dashboardSidebar(
     width = 300,
     sidebarMenu(
       id = "sidebarMenuid",
-      
+
       menuItem(
         "Accueil",
         tabName = "home",

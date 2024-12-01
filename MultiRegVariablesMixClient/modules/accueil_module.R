@@ -9,9 +9,10 @@ AccueilModuleUI <- function(id) {
       lead = "Cette application a été créée pour effectuer la régression logistique multinomiale sur les données.",
       "Cette application implémente la régression logistique multinomiale en prenant en compte des données mixtes.
           Le package est disponible sur CRAN et sur GitHub. Vous pouvez l'installer en utilisant la commande suivante :
-          \t`install.packages('multiReglogisc')`.\nElle a été implémentée en utilisant la descente de gradient.",
+          \t`remotes::install_github(\"https://github.com/akremjomaa/MultiRegVariablesMix.git\")`.\nElle a été implémentée en utilisant la descente de gradient.",
       btnName = "Documentation",
-      btnLink = "https://cran.r-project.org/web/packages/multiReglogisc/multiReglogisc.pdf"
+      href = "https://akremjomaa.github.io/MultiRegVariablesMix"
+
     ),
     # User Boxes Section
     fluidRow(
@@ -19,38 +20,38 @@ AccueilModuleUI <- function(id) {
         collapsible = FALSE,
         width = 4.5,
         title = userDescription(
-          title = "ADJARO PATOUSSI Edina",
+          title = "Edina Adjaro Patoussi",
           subtitle = "Data Scientist, Maintainer",
           image = "https://www.gravatar.com/avatar/",
           type = 2
         ),
-        status = "purple",
-        "Contact : adjaropatoussi@gmail.com"
+        status = "success",
+        "Contact :  e.adjaro-patoussi@univ-lyon2.fr"
       ),
       userBox(
         collapsible = FALSE,
         width = 4.5,
         title = userDescription(
-          title = "joel",
+          title = "Akrem Jomaa",
           subtitle = "Data Scientist, Maintainer",
           image = "https://www.gravatar.com/avatar/",
           type = 2
         ),
-        status = "info",
-        "Contact : john.doe@example.com"
+        status = "success",
+        "Contact : akrem.jomaa@univ-lyon2.fr"
       ),
       userBox(
         collapsible = FALSE,
         width = 4.5,
 
         title = userDescription(
-          title = "Akrem",
+          title = "Joel Sollari ",
           subtitle = "Data Scientist, Maintainer",
           image = "https://www.gravatar.com/avatar/",
           type = 2
         ),
         status = "success",
-        "Contact : jane.smith@example.com"
+        "Contact :  joel.sollari@univ-lyon2.fr"
       )
     )
   )

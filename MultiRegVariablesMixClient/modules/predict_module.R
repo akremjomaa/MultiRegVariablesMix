@@ -153,8 +153,10 @@ predictModuleServer <- function(input, output, session, shared_data, model) {
     
     # Make prediction
     tryCatch({
-      pred <- predict(model()$fit, newdata = input_data, type = "class")
-      probs <- predict(model()$fit, newdata = input_data, type = "probs")
+      pred = model()$model_instance$predict(input_data)
+      probs = model()$model_instance$predict(input_data)
+      # pred <- predict(model()$model_instance, newdata = input_data)
+      # probs <- predict(model()$model_instance, newdata = input_data)
       
       output$single_prediction_result <- renderText({
         paste("Prédiction:", pred)
@@ -207,8 +209,12 @@ predictModuleServer <- function(input, output, session, shared_data, model) {
       
       # Make predictions
       tryCatch({
-        preds <- predict(model()$fit, newdata = df, type = "class")
-        probs <- predict(model()$fit, newdata = df, type = "probs")
+      pred = model()$model_instance$predict(input_data)
+      probs = model()$model_instance$predict(input_data)
+
+
+        # preds <- predict(model()$model_instance$predict, newdata = df, type = "class")
+        # probs <- predict(model()$model_instance$predict, newdata = df, type = "probs")
         
         # Combine predictions with original data
         result <- cbind(

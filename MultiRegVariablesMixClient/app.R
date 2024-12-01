@@ -3,7 +3,10 @@ library(shinydashboard)
 library(DT)
 library(FactoMineR)  # For FAMD
 library(caret)       # For dummyVars
-library(nnet) 
+library(nnet)
+
+
+
 
 # Charger les modules
 source("ui.R")
