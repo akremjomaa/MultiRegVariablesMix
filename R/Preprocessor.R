@@ -112,7 +112,7 @@ Preprocessor <- R6Class("Preprocessor",
                           #' @param X A dataset.
                           #' @return Variances explained by each dimension.
                           explore_famd = function(X) {
-                            famd_result <- FactoMineR::FAMD(X)
+                            famd_result <- FactoMineR::FAMD(X, ncp = Inf)
                             eig.val <- famd_result$eig
                             barplot(eig.val[, 2], names.arg = 1:nrow(eig.val),
                                     main = "Variances Explained by Dimensions (%)",
