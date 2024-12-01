@@ -3,6 +3,9 @@ library(shinydashboard)
 library(DT)
 library(FactoMineR)
 library(devtools)
+library(caret)
+
+
 # library(MultiRegVariablesMix)
 load_all("MultiRegVariablesMix")
 
@@ -59,7 +62,8 @@ fitModuleUI <- function(id) {
               "Mise à l'échelle (numériques)",
               choices = c(
                 "Aucun" = "none",
-                "Standardisation (moyenne=0, écart-type=1)" = "standard"
+                "Standardisation (moyenne=0, écart-type=1)" = "standard",
+                "Normalisation (min=0, max=1)" = "normalize"
               )
             ),
             selectInput(
@@ -213,16 +217,101 @@ fitModuleServer <- function(input, output, session, shared_data) {
                      selected = if(length(cat_vars) > 0) cat_vars[1] else NULL)
   })
   
+
+        # Enhanced preprocessing function
+  preprocess_data <- function(df, input) {
+          # Missing value handling
+          numeric_vars <- names(df)[sapply(df, is.numeric)]
+          categorical_vars <- names(df)[sapply(df, function(x) is.factor(x) || is.character(x))]
+          
+          # Numeric missing value imputation
+          df[numeric_vars] <- lapply(df[numeric_vars], function(x) {
+            switch(input$na_numeric,
+                  "mean" = {
+                    x[is.na(x)] <- mean(x, na.rm = TRUE)
+                    x
+                  },
+                  "median" = {
+                    x[is.na(x)] <- median(x, na.rm = TRUE)
+                    x
+                  },
+                  "knn" = {
+                    # Requires imputation package
+                    # x <- impute(x, method = "knn")
+                    x
+                  })
+          })
+          
+          # Categorical missing value handling
+          df[categorical_vars] <- lapply(df[categorical_vars], function(x) {
+            switch(input$na_categorical,
+                  "mode" = {
+                    mode_val <- names(sort(table(x), decreasing = TRUE))[1]
+                    x[is.na(x)] <- mode_val
+                    x
+                  },
+                  "new_category" = {
+                    x[is.na(x)] <- "Unknown"
+                    x
+                  })
+          })
+          
+          # Scaling
+          df[numeric_vars] <- switch(input$scaling,
+            "standard" = scale(df[numeric_vars]),
+            "normalize" = apply(df[numeric_vars], 2, function(x) (x - min(x)) / (max(x) - min(x))),
+            "robust" = {
+              # Robust scaling using median and IQR
+              apply(df[numeric_vars], 2, function(x) {
+                (x - median(x, na.rm = TRUE)) / IQR(x, na.rm = TRUE)
+              })
+            },
+            df[numeric_vars]
+          )
+          
+          return(df)
+    }
+
   # Model fitting handler
   observeEvent(input$fit_model, {
     req(data(), input$target_var)
+ 
     
     withProgress(message = 'Entraînement du modèle...', {
       
       tryCatch({
         # Preprocess data
-        df <- data()
+        # df <- data()
+        df <- preprocess_data(data(), input)
         
+
+    # # Traitement des valeurs manquantes
+    # numeric_vars <- names(df)[sapply(df, is.numeric)]
+    # df[numeric_vars] <- lapply(df[numeric_vars], function(x) {
+    #   x[is.na(x)] <- ifelse(input$na_numeric == "mean", mean(x, na.rm = TRUE), median(x, na.rm = TRUE))
+    #   x
+    # })
+
+    # # Traitement des variables catégorielles manquantes
+    # if (input$na_categorical == "mode") {
+    #   cat_vars <- names(df)[sapply(df, function(x) is.factor(x) || is.character(x))]
+    #   df[cat_vars] <- lapply(df[cat_vars], function(x) {
+    #     mode_value <- as.character(stats::Mode(x[!is.na(x)]))
+    #     x[is.na(x)] <- mode_value
+    #     x
+    #   })
+    # }
+
+    # # Scaling
+    # if (input$scaling == "standardization") {
+    #   df[numeric_vars] <- lapply(df[numeric_vars], function(x) (x - mean(x, na.rm = TRUE)) / sd(x, na.rm = TRUE))
+    # } else if (input$scaling == "normalization") {
+    #   df[numeric_vars] <- lapply(df[numeric_vars], function(x) (x - min(x, na.rm = TRUE)) / (max(x, na.rm = TRUE) - min(x, na.rm = TRUE)))
+    # }
+
+
+
+
         # Initialize preprocessor
         # preprocessor <- Preprocessor$new(encoding_type = input$encoding)
         
@@ -238,7 +327,9 @@ fitModuleServer <- function(input, output, session, shared_data) {
         
         # Train/test split
         set.seed(123)
-        train_idx <- sample(nrow(df), size = floor(input$train_ratio * nrow(df)))
+        train_idx <- createDataPartition(target, p = input$train_ratio, list = FALSE)
+
+        # train_idx <- sample(nrow(df), size = floor(input$train_ratio * nrow(df)))
         
         # Feature engineering
         pred_vars <- setdiff(names(df), input$target_var)
@@ -260,10 +351,33 @@ fitModuleServer <- function(input, output, session, shared_data) {
           # preprocessor = preprocessor
         )
         
-        model_instance$fit(X = X_train, y = y_train)
+        # if(input$encoding == "onehot"){
+        #   X_train <- model_instance$preprocess(X_train,y_train ,is_training = TRUE)
+        #   }
+        # if(input$encoding == "label"){
+        #   X_train <- model_instance$preprocess(X_train, y_train,is_training = TRUE)
+        #   }
+        # if(input$encoding == "afdm"){
+        #   X_train <- model_instance$preprocess(X_train, y_train,is_training = TRUE, ncp = 5)
+           
+        #   }
+
+        model_instance$fit(X_train, y_train, preprocess = TRUE, ncp = 1)
         
         # Make predictions
         pred_train <- model_instance$predict(X_train)
+
+        # if(input$encoding == "onehot"){
+        #   X_test <- model_instance$preprocess(X_train,y_train ,is_training = FALSE)
+        #   }
+        # if(input$encoding == "label"){
+        #   X_test <- model_instance$preprocess(X_train, y_train,is_training = FALSE)
+        #   }
+        # if(input$encoding == "afdm"){
+        #   X_test <- model_instance$preprocess(X_train, y_train,is_training = FALSE, ncp = 5)   
+        #   }
+
+
         pred_test <- model_instance$predict(X_test)
         
         # Calculate metrics
@@ -291,14 +405,15 @@ fitModuleServer <- function(input, output, session, shared_data) {
         showNotification(
           sprintf("Modèle entraîné avec succès (%.1f%% accuracy)", 
                   accuracy * 100),
-          type = "message"
+          type = "message",
+          duration = 2
         )
         
       }, error = function(e) {
         showNotification(
           sprintf("Erreur lors de l'entraînement: %s", e$message),
           type = "error",
-          duration = NULL
+          duration = 2
         )
       })
     })

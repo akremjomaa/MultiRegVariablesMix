@@ -154,7 +154,7 @@ predictModuleServer <- function(input, output, session, shared_data, model) {
     # Make prediction
     tryCatch({
       pred = model()$model_instance$predict(input_data)
-      probs = model()$model_instance$predict(input_data)
+      probs = model()$model_instance$predict_proba(input_data)
       # pred <- predict(model()$model_instance, newdata = input_data)
       # probs <- predict(model()$model_instance, newdata = input_data)
       
@@ -172,9 +172,9 @@ predictModuleServer <- function(input, output, session, shared_data, model) {
       
     }, error = function(e) {
       showNotification(
-        paste("Erreur de prédiction:", e$message),
+        paste("Erreur de prédiction"),
         type = "error",
-        duration = NULL
+        duration = 2
       )
     })
   })
@@ -201,8 +201,9 @@ predictModuleServer <- function(input, output, session, shared_data, model) {
       missing_cols <- setdiff(feature_names(), names(df))
       if (length(missing_cols) > 0) {
         showNotification(
-          paste("Colonnes manquantes:", paste(missing_cols, collapse = ", ")),
-          type = "error"
+          paste("Colonnes manquantes"),
+          type = "error",
+          duration = 2
         )
         return(NULL)
       }
@@ -210,7 +211,7 @@ predictModuleServer <- function(input, output, session, shared_data, model) {
       # Make predictions
       tryCatch({
       pred = model()$model_instance$predict(input_data)
-      probs = model()$model_instance$predict(input_data)
+      probs = model()$model_instance$predict_proba(input_data)
 
 
         # preds <- predict(model()$model_instance$predict, newdata = df, type = "class")
@@ -227,8 +228,9 @@ predictModuleServer <- function(input, output, session, shared_data, model) {
         
       }, error = function(e) {
         showNotification(
-          paste("Erreur lors des prédictions:", e$message),
-          type = "error"
+          paste("Erreur lors des prédictions"),
+          type = "error",
+          duration = 2
         )
       })
     })

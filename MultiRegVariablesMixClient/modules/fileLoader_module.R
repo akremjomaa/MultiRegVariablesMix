@@ -140,16 +140,17 @@ fileLoaderModuleServer <- function(input, output, session, shared_data) {
         
         showNotification(
           paste("Données chargées avec succès:", nrow(df), "lignes,", ncol(df), "colonnes"),
-          type = "message"
+          type = "message",
+          duration = 2
         )
         
         return(df)
         
       }, error = function(e) {
         showNotification(
-          paste("Erreur lors de l'importation:", e$message),
+          paste("Erreur lors de l'importation"),
           type = "error",
-          duration = NULL
+          duration = 2
         )
         return(NULL)
       })
