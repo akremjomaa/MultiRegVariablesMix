@@ -195,13 +195,13 @@ model$summary()
 
 ## 🛠️ Dependencies
 
-This package depends on the following libraries (automatically installed during installation):
+This package uses R version 4.4.1 and depends on the following libraries (automatically installed during installation):
 
-- `R6`
-- `ggplot2`
+- `R6_2.5.1`
+- `ggplot2_3.5.1`
 - `stats`
-- `FactoMineR`
-- `pROC`
+- `FactoMineR_2.11`
+- `pROC_1.18.5`
 
 ---
 
