@@ -129,7 +129,7 @@ Preprocessor <- R6Class("Preprocessor",
                           encode_afdm = function(data, is_training = TRUE, ncp = NULL) {
                             if (is_training) {
                               if (is.null(ncp)) {
-                                temp_famd <- FAMD(data, graph = FALSE)
+                                temp_famd <- FAMD(data, ncp = Inf, graph = FALSE)
                                 var_explained <- temp_famd$eig[, 2]
                                 cumulative_variance <- cumsum(var_explained)
                                 ncp <- which(cumulative_variance >= 80)[1]
