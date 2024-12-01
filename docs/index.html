@@ -136,6 +136,11 @@
 <span></span>
 <span><span class="co"># Load data</span></span>
 <span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/utils/read.table.html" class="external-link">read.csv</a></span><span class="op">(</span><span class="va">url</span>, header <span class="op">=</span> <span class="cn">FALSE</span>, col.names <span class="op">=</span> <span class="va">col_names</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Transform the target variable (Rings) into age categories (numeric labels)</span></span>
+<span><span class="co"># Note: The target variable 'y' must be in the form of numeric labels (e.g., 1, 2, 3),</span></span>
+<span><span class="co"># not character strings or names, to be compatible with the model.</span></span>
+<span></span>
 <span><span class="va">df</span><span class="op">$</span><span class="va">AgeCategory</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cut.html" class="external-link">cut</a></span><span class="op">(</span><span class="va">df</span><span class="op">$</span><span class="va">Rings</span> <span class="op">+</span> <span class="fl">1.5</span>,</span>
 <span>                           breaks <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="cn">Inf</span>, <span class="fl">10</span>, <span class="fl">20</span>, <span class="cn">Inf</span><span class="op">)</span>,</span>
 <span>                           labels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">3</span><span class="op">)</span><span class="op">)</span></span>

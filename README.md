@@ -68,6 +68,11 @@ col_names <- c("Sex", "Length", "Diameter", "Height",
 
 # Load data
 df <- read.csv(url, header = FALSE, col.names = col_names)
+
+# Transform the target variable (Rings) into age categories (numeric labels)
+# Note: The target variable 'y' must be in the form of numeric labels (e.g., 1, 2, 3), 
+# not character strings or names, to be compatible with the model.
+
 df$AgeCategory <- cut(df$Rings + 1.5,
                            breaks = c(-Inf, 10, 20, Inf),
                            labels = c(1, 2, 3))
