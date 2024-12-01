@@ -5,23 +5,23 @@
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](https://opensource.org/licenses/MIT)
 [![R](https://img.shields.io/badge/built%20with-R-blue.svg)](https://www.r-project.org/)
 
-**MultiRegVariablesMix** est un package R conçu pour effectuer des régressions logistiques multinomiales avec des variables mixtes. Ce package offre une intégration fluide entre le prétraitement des données, l'entraînement d'un modèle de régression logistique avancé, et des outils d'évaluation visuelle.
+**MultiRegVariablesMix** est un package R conçu pour effectuer des régressions logistiques multinomiales avec des variables mixtes. Ce package offre une intégration fluide entre le prétraitement des données, l'entraînement d'un modèle de régression logistique, et des outils d'évaluation visuelle.
 
 ---
 
 ## 🚀 Fonctionnalités principales
 
 - **Régression logistique multinomiale** adaptée aux variables numériques et catégoriques.
-- **Prétraitement avancé intégré** :
+- **Prétraitement intégré** :
   - Label encoding.
   - One-hot encoding.
   - Analyse Factorielle des Données Mixtes (AFDM) pour les variables mixtes.
-- **Optimisation moderne** avec prise en charge de :
+- **Optimisation** avec prise en charge de :
   - Gradient Descent.
   - Adam.
   - RMSprop.
   - Momentum.
-- **Visualisations riches et informatives** :
+- **Visualisations** :
   - Courbes d'évolution du coût.
   - Matrice de confusion.
   - Importance des variables.
@@ -39,7 +39,7 @@ Pour installer la dernière version de **MultiRegVariablesMix** depuis GitHub :
 install.packages("remotes")
 
 # Installez le package depuis GitHub
-remotes::install_github("akremjomaa/MultiRegVariablesMix")
+remotes::install_github("https://github.com/akremjomaa/MultiRegVariablesMix.git")
 ```
 
 ---
@@ -222,7 +222,7 @@ Pour signaler un problème ou proposer une amélioration, rendez-vous sur :
 
 ## 📄 Licence
 
-Ce package est distribué sous la licence MIT. Consultez le fichier [LICENSE](https://github.com/akremjomaa/MultiRegVariablesMix/blob/master/LICENSE) pour plus d'informations.
+Ce package est distribué sous la licence MIT. Consultez le fichier [LICENSE](https://github.com/akremjomaa/MultiRegVariablesMix/blob/master/LICENSE.md) pour plus d'informations.
 
 ---
 
