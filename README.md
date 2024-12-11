@@ -80,7 +80,7 @@ X <- df[,c(-9,-10)]
 y <- df$AgeCategory
 
 # Split into training and testing sets
-train_idx <- sample(seq_len(nrow(X)), size = 70)
+train_idx <- sample(seq_len(nrow(X)), size = (nrow(X)* 0.7))
 X_train <- X[train_idx, ]
 X_test <- X[-train_idx, ]
 y_train <- y[train_idx]
